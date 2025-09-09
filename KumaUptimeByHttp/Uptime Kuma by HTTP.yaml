@@ -341,9 +341,9 @@ zabbix_export:
           value: kuma
       macros:
         - macro: '{$KUMA.BASIC_PASS}'
+          type: SECRET_TEXT
           description: 'If using API key, paste the key here and leave {$KUMA.BASIC_USER} empty. Otherwise use your Basic auth password.'
         - macro: '{$KUMA.BASIC_USER}'
-          type: SECRET_TEXT
           description: 'Basic auth username. Leave empty when using API key as password.'
         - macro: '{$KUMA.CERT.DAYS.CRIT}'
           value: '7'
