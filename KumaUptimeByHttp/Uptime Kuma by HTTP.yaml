@@ -27,6 +27,7 @@ zabbix_export:
           type: HTTP_AGENT
           key: kuma.metrics
           delay: '{$KUMA.MASTER.DELAY}'
+          history: 1h
           value_type: TEXT
           authtype: BASIC
           username: '{$KUMA.BASIC_USER}'
