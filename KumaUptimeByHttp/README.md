@@ -1,63 +1,55 @@
-# ZabbixTemplates
+# ZabbixTemplates / KumaUptimeByHttp
 
-A set of Zabbix 7.x templates maintained by @snis.
+This directory contains a Zabbix 7.x template maintained by @snis for monitoring Uptime Kuma instances.
 
-## Templates
+## Uptime Kuma by HTTP (Overview)
 
-- **KumaUptimeByHttp/**
-  - `UptimeKumaByHttp.yaml` – Zabbix template for ingesting **Uptime Kuma** metrics via **HTTP** (`/metrics`) without a Prometheus server.
-  - `README.md` – Usage, requirements, and troubleshooting.
-
----
-
-## Uptime Kuma by HTTP (overview)
-
-Receives Uptime Kuma monitor metrics (status, latency, and—when present—TLS certificate info) by polling the Kuma `/metrics` endpoint with Zabbix **HTTP agent** and parsing with **Prometheus preprocessors**.
+This template enables Zabbix to ingest Uptime Kuma monitor metrics (status, latency, and TLS certificate details when available) by polling the `/metrics` endpoint using the Zabbix HTTP agent, parsed with Prometheus preprocessors. It eliminates the need for a separate Prometheus server.
 
 **Highlights**
-- One HTTP master item, two LLD rules (Core + TLS), dependent item prototypes.
-- Per-type latency thresholds via **context macros** (e.g. DNS vs HTTP vs TCP vs PING).
-- Clean tagging across items/triggers: `origin=kuma`, `component=health|latency|tls|cert`, and trigger `scope=availability|performance|notice`.
-- Only one graph prototype (response time); certificate “days remaining” is stored as **no-history** (linear/low-value series), plus a derived **expiry date** item.
+- Features a single HTTP master item, two LLD rules (Core and TLS), and dependent item prototypes.
+- Supports per-type latency thresholds via context macros (e.g., DNS vs. HTTP vs. TCP vs. PING).
+- Uses clean tagging across items and triggers: `origin=kuma`, `component=health|latency|tls|cert`, and `scope=availability|performance|notice`.
+- Includes one graph prototype (response time); certificate "days remaining" is stored as no-history (linear/low-value series), with a derived expiry date item.
 
 **Compatibility**
-- Tested on **Zabbix 7.2**
-- Uptime Kuma **/metrics** enabled
+- Tested with Zabbix 7.2.
+- Works with Uptime Kuma instances where `/metrics` is enabled.
 
 ---
 
-## Quick start
+## Quick Start
 
-1. In **Kuma GUI**: *Settings → API Keys → + Add API Key*  
-   Name it (e.g., `zabbix`), set Expiry (or *Don’t expire*), click **Generate** and **copy the key**.
-2. In **Zabbix**: import `UptimeKumaByHttp.yaml` (Data collection → Templates → Import).
-3. Create/link a **host** for your Kuma (no interface required).
-4. Set macros on the template/host:
+1. In **Uptime Kuma GUI**: Go to *Settings → API Keys → + Add API Key*.  
+   Name it (e.g., `zabbix`), set an expiry date (or *Don’t expire*), click **Generate**, and copy the key.
+2. In **Zabbix**: Import `Uptime Kuma by HTTP.yaml` (Data collection → Templates → Import).
+3. Create or link a **host** for your Uptime Kuma (no interface required).
+4. Set macros on the template or host:
    - `{$KUMA.URL}` = `https://<your-kuma>:3001`
-   - `{$KUMA.BASIC_PASS}` = **API key** (leave `{$KUMA.BASIC_USER}` empty), or use basic user/pass.
-5. Open the template → **Discovery rules** → **Execute now** (both Core & TLS).
+   - `{$KUMA.BASIC_PASS}` = **API key** (leave `{$KUMA.BASIC_USER}` empty), or use a basic username/password.
+5. Open the template → **Discovery rules** → **Execute now** (both Core and TLS).
 
 ---
 
-## Macros (key ones)
+## Macros (Key Ones)
 
-- **Connection & auth**
-  - `{$KUMA.URL}` – Base URL to Kuma `/metrics`.
-  - `{$KUMA.BASIC_USER}` – Leave empty if using API key.
-  - `{$KUMA.BASIC_PASS}` – API key (or basic password).
+- **Connection & Authentication**
+  - `{$KUMA.URL}` – Base URL to the Kuma `/metrics` endpoint (e.g., `https://kuma.example.com:3001`).
+  - `{$KUMA.BASIC_USER}` – Leave empty when using an API key.
+  - `{$KUMA.BASIC_PASS}` – API key (or basic password if not using an API key).
 
 - **Polling**
-  - `{$KUMA.MASTER.DELAY}` – poll interval for the master item (default `1m`).
+  - `{$KUMA.MASTER.DELAY}` – Polling interval for the master item (default `1m`).
 
-- **Latency thresholds** (per monitor **type** via context):
-  - `{$KUMA.RT.WARN:"http"}` / `{$KUMA.RT.CRIT:"http"}`
-  - `{$KUMA.RT.WARN:"dns"}` / `{$KUMA.RT.CRIT:"dns"}`
-  - `{$KUMA.RT.WARN:"tcp"}` / `{$KUMA.RT.CRIT:"tcp"}`
-  - `{$KUMA.RT.WARN:"ping"}` / `{$KUMA.RT.CRIT:"ping"}`
-  - Fallbacks: `{$KUMA.RT.WARN}` / `{$KUMA.RT.CRIT}`
+- **Latency Thresholds** (per monitor type via context):
+  - `{$KUMA.RT.WARN:"http"}` / `{$KUMA.RT.CRIT:"http"}` – HTTP monitor thresholds.
+  - `{$KUMA.RT.WARN:"dns"}` / `{$KUMA.RT.CRIT:"dns"}` – DNS monitor thresholds.
+  - `{$KUMA.RT.WARN:"tcp"}` / `{$KUMA.RT.CRIT:"tcp"}` – TCP monitor thresholds.
+  - `{$KUMA.RT.WARN:"ping"}` / `{$KUMA.RT.CRIT:"ping"}` – PING/ICMP monitor thresholds.
+  - Fallbacks: `{$KUMA.RT.WARN}` / `{$KUMA.RT.CRIT}` (default values).
 
 - **TLS**
-  - `{$KUMA.CERT.DAYS.WARN}` / `{$KUMA.CERT.DAYS.CRIT}` – thresholds for expiring certificates.
+  - `{$KUMA.CERT.DAYS.WARN}` / `{$KUMA.CERT.DAYS.CRIT}` – Warning and critical thresholds for expiring certificates (default 30 and 7 days).
 
 ---
 
@@ -71,16 +63,15 @@ Receives Uptime Kuma monitor metrics (status, latency, and—when present—TLS 
 
 ## Troubleshooting
 
-- **No data**: confirm `{$KUMA.URL}/metrics` is reachable from Zabbix server/proxy.
-- **Auth**: with API key, set it in `{$KUMA.BASIC_PASS}` and keep `{$KUMA.BASIC_USER}` empty.
-- **No cert items**: only created for monitors that expose `monitor_cert_*`.
+- **No data**: Ensure `{$KUMA.URL}/metrics` is accessible from the Zabbix server or proxy.
+- **Authentication issues**: Use the API key in `{$KUMA.BASIC_PASS}` and leave `{$KUMA.BASIC_USER}` empty.
+- **No certificate items**: Certificate-related items are created only for monitors exposing `monitor_cert_*` metrics.
 
 ---
 
 ## Feedback
 
-You can discuss this template or leave feedback at  
+Discuss this template or leave feedback at  
 **https://github.com/snis/ZabbixTemplates**
 
 **Generated by @snis**
-
