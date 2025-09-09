@@ -152,6 +152,13 @@ zabbix_export:
                   value: kuma
                 - tag: type
                   value: '{#TYPE}'
+              trigger_prototypes:
+                - uuid: 3a15139870334c0e8fb25791a303403f
+                  expression: 'last(/Uptime Kuma by HTTP/kuma.monitor.cert_valid[{#NAME}])=0'
+                  name: 'Uptime Kuma: Invalid certificate on {#NAME}'
+                  opdata: 'Invalid certificate on {#NAME}: Validity: {Uptime Kuma by HTTP:kuma.monitor.cert_valid[{#NAME}].last()} (0=No)'
+                  priority: HIGH
+                  description: 'Trigger for when the TLS certificate on {#NAME} is invalid (0=No). Indicates an immediate certificate issue (e.g., expired or untrusted). Severity: High. Expression: {Uptime Kuma by HTTP:kuma.monitor.cert_valid[{#NAME}].last()}=0. Uses valuemap ''Kuma boolean'' to map 0 to ''No''. Dependent on the status item to ensure availability context. Alerts for urgent certificate replacement.'
           trigger_prototypes:
             - uuid: 58286bb88777427ba6a08470650d7e81
               expression: 'last(/Uptime Kuma by HTTP/kuma.monitor.cert_days[{#NAME}])<{$KUMA.CERT.DAYS.CRIT} and last(/Uptime Kuma by HTTP/kuma.monitor.cert_valid[{#NAME}])=1'
@@ -174,6 +181,9 @@ zabbix_export:
               opdata: 'Certificate expiry warning on {#NAME}: Days remaining: {Uptime Kuma by HTTP:kuma.monitor.cert_days[{#NAME}].last()} (threshold: {$KUMA.CERT.DAYS.WARN} days)'
               priority: WARNING
               description: 'Warning severity trigger for when TLS certificate days remaining on {#NAME} falls below warning threshold ({$KUMA.CERT.DAYS.WARN}, default 30 days). Provides early alert for certificate renewal. Severity: Warning. Expression: {Uptime Kuma by HTTP:kuma.monitor.cert_days[{#NAME}].last()}<{$KUMA.CERT.DAYS.WARN} AND {Uptime Kuma by HTTP:kuma.monitor.cert_days[{#NAME}].last()}>{$KUMA.CERT.DAYS.CRIT}. Dependent on status item.'
+              dependencies:
+                - name: 'Uptime Kuma: TLS cert CRITICAL on {#NAME} ({#TYPE}) (< {$KUMA.CERT.DAYS.CRIT}d)'
+                  expression: 'last(/Uptime Kuma by HTTP/kuma.monitor.cert_days[{#NAME}])<{$KUMA.CERT.DAYS.CRIT} and last(/Uptime Kuma by HTTP/kuma.monitor.cert_valid[{#NAME}])=1'
               tags:
                 - tag: component
                   value: tls
@@ -253,6 +263,8 @@ zabbix_export:
                   priority: WARNING
                   description: 'Warning severity trigger for elevated response time on {#NAME} ({#TYPE}, e.g., dns/http). Threshold: {$KUMA.RT.WARN:"{#TYPE}"} ms (e.g., 100ms for dns). Monitors performance degradation for early detection. Severity: Warning. Expression: {Uptime Kuma by HTTP:kuma.monitor.response.time[{#NAME}].last()}>={$KUMA.RT.WARN:"{#TYPE}"} AND {Uptime Kuma by HTTP:kuma.monitor.response.time[{#NAME}].last()}<{$KUMA.RT.CRIT:"{#TYPE}"}. Dependency on status trigger to suppress if DOWN.'
                   dependencies:
+                    - name: 'Uptime Kuma: Critical latency on {#NAME} ({#TYPE}) (>={$KUMA.RT.CRIT}ms)'
+                      expression: 'min(/Uptime Kuma by HTTP/kuma.monitor.ping[{#NAME}],5m)>={$KUMA.RT.CRIT:"{#TYPE}"}'
                     - name: 'Uptime Kuma: {#NAME} ({#TYPE}) is DOWN'
                       expression: 'last(/Uptime Kuma by HTTP/kuma.monitor.status[{#NAME}])=0'
                   tags:
