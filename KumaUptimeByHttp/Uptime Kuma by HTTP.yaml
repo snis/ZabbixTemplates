@@ -234,7 +234,7 @@ zabbix_export:
                       value: '{#TYPE}'
                 - uuid: 35cd870c32aa45cb8c556adfbb286fcd
                   expression: 'min(/Uptime Kuma by HTTP/kuma.monitor.ping[{#NAME}],5m)>={$KUMA.RT.WARN:"{#TYPE}"}'
-                  name: 'Uptime Kuma: High latency on {#NAME} ({#TYPE}) (>={$KUMA.RT.WARN}ms)'
+                  name: 'Uptime Kuma: High latency on {#NAME} ({#TYPE}) (>={$KUMA.RT.WARN:"{#TYPE}"}ms)'
                   priority: WARNING
                   dependencies:
                     - name: 'Uptime Kuma: {#NAME} ({#TYPE}) is DOWN'
