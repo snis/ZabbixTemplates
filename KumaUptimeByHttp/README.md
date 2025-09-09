@@ -15,6 +15,8 @@ This template enables Zabbix to ingest Uptime Kuma monitor metrics (status, late
 **Compatibility**
 - Tested with Zabbix 7.2.
 - Works with Uptime Kuma instances where `/metrics` is enabled.
+- Tested with Uptime Kuma version 1.23.16 and 2.0.0-beta.4
+
 
 ---
 
