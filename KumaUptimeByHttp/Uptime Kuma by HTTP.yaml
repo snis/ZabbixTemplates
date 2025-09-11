@@ -67,6 +67,16 @@ zabbix_export:
               value: raw
             - tag: origin
               value: kuma
+          triggers:
+            - uuid: 93e306223b754786a370fb434c6e496d
+              expression: 'nodata(/Uptime Kuma by HTTP/kuma.metrics,2m)=1'
+              name: 'Uptime Kuma: No response from server'
+              opdata: 'No response from Uptime Kuma: No data received from {HOST.NAME} at {$KUMA.URL} (threshold: 2m)'
+              priority: HIGH
+              description: 'Trigger for when the Uptime Kuma server stops responding to the /metrics endpoint. Indicates a potential server outage, network issue, or authentication failure. Severity: High. Expression: {Uptime Kuma by HTTP:kuma.metrics.nodata(2m)}=1. Monitors the master item kuma.metrics with a 2-minute no-data threshold. Check {$KUMA.URL} accessibility and the login credential validity.'
+              tags:
+                - tag: scope
+                  value: availability
       discovery_rules:
         - uuid: c2d3e4f5a6b747c88d9e0f1a2b3c4052
           name: 'Discover TLS-enabled monitors (cert)'
@@ -341,9 +351,9 @@ zabbix_export:
           value: kuma
       macros:
         - macro: '{$KUMA.BASIC_PASS}'
-          type: SECRET_TEXT
           description: 'If using API key, paste the key here and leave {$KUMA.BASIC_USER} empty. Otherwise use your Basic auth password.'
         - macro: '{$KUMA.BASIC_USER}'
+          type: SECRET_TEXT
           description: 'Basic auth username. Leave empty when using API key as password.'
         - macro: '{$KUMA.CERT.DAYS.CRIT}'
           value: '7'
