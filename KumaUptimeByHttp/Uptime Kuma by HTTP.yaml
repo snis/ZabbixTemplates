@@ -107,6 +107,8 @@ zabbix_export:
                   value: health
                 - tag: component
                   value: tls
+                - tag: host
+                  value: '{#NAME}'
                 - tag: origin
                   value: kuma
                 - tag: type
@@ -131,6 +133,8 @@ zabbix_export:
                   value: health
                 - tag: component
                   value: tls
+                - tag: host
+                  value: '{#NAME}'
                 - tag: origin
                   value: kuma
                 - tag: type
@@ -158,6 +162,8 @@ zabbix_export:
                   value: health
                 - tag: component
                   value: tls
+                - tag: host
+                  value: '{#NAME}'
                 - tag: origin
                   value: kuma
                 - tag: type
@@ -243,6 +249,8 @@ zabbix_export:
               tags:
                 - tag: component
                   value: latency
+                - tag: host
+                  value: '{#NAME}'
                 - tag: origin
                   value: kuma
                 - tag: type
@@ -308,6 +316,8 @@ zabbix_export:
               tags:
                 - tag: component
                   value: health
+                - tag: host
+                  value: '{#NAME}'
                 - tag: origin
                   value: kuma
                 - tag: type
@@ -351,9 +361,9 @@ zabbix_export:
           value: kuma
       macros:
         - macro: '{$KUMA.BASIC_PASS}'
+          type: SECRET_TEXT
           description: 'If using API key, paste the key here and leave {$KUMA.BASIC_USER} empty. Otherwise use your Basic auth password.'
         - macro: '{$KUMA.BASIC_USER}'
-          type: SECRET_TEXT
           description: 'Basic auth username. Leave empty when using API key as password.'
         - macro: '{$KUMA.CERT.DAYS.CRIT}'
           value: '7'
