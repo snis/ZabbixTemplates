@@ -1,6 +1,6 @@
-diff -Naur ./svggraph_orig/includes/CSvgGraphHelper.php ./svggraph/includes/CSvgGraphHelper.php
---- ./svggraph_orig/includes/CSvgGraphHelper.php	2025-08-25 12:13:47.000000000 +0200
-+++ ./svggraph/includes/CSvgGraphHelper.php	2025-09-20 20:54:26.760035515 +0200
+diff -Naur svggraph/includes/CSvgGraphHelper.php svggraph/includes/CSvgGraphHelper.php
+--- svggraph/includes/CSvgGraphHelper.php	2025-08-25 12:13:47.000000000 +0200
++++ svggraph/includes/CSvgGraphHelper.php	2025-09-20 20:54:26.760035515 +0200
 @@ -696,22 +696,30 @@
  					// Collect and sort data points.
  					if (array_key_exists($item['itemid'], $results)) {
@@ -21,35 +21,35 @@ diff -Naur ./svggraph_orig/includes/CSvgGraphHelper.php ./svggraph/includes/CSvg
 -		}
 -	}
 -
-+																$metric['points'][$point['clock']] = [
-+																	'min' => $point['min'],
-+																	'avg' => $point['avg'],
-+																	'max' => $point['max']
-+																];
-+															}
-+															ksort($metric['points'], SORT_NUMERIC);
-+							
-+															if ($metric['options']['invert']) {
-+																foreach ($metric['points'] as &$point) {
-+																	$point['min'] = -$point['min'];
-+																	$point['avg'] = -$point['avg'];
-+																	$point['max'] = -$point['max'];
-+																}
-+																unset($point);
-+															}
-+							
-+															unset($metric['source'], $metric['history'], $metric['trends']);
-+														}
-+													}
-+													unset($metric);
-+												}
++												$metric['points'][$point['clock']] = [
++													'min' => $point['min'],
++													'avg' => $point['avg'],
++													'max' => $point['max']
++												];
 +											}
++											ksort($metric['points'], SORT_NUMERIC);
++							
++											if ($metric['options']['invert']) {
++												foreach ($metric['points'] as &$point) {
++													$point['min'] = -$point['min'];
++													$point['avg'] = -$point['avg'];
++													$point['max'] = -$point['max'];
++												}
++												unset($point);
++											}
++							
++											unset($metric['source'], $metric['history'], $metric['trends']);
 +										}
++									}
++									unset($metric);
++								}
++							}
++						}
  	/**
  	 * Select aggregated data to show in graph for each metric.
  	 */
 @@ -873,21 +881,29 @@
- 							[$point_a['clock'], $point_a['ns']] <=> [$point_b['clock'], $point_b['ns']]
+ 						[$point_a['clock'], $point_a['ns']] <=> [$point_b['clock'], $point_b['ns']]
  						);
  
 -						$point = $metric['options']['aggregate_function'] == AGGREGATE_FIRST
@@ -67,29 +67,29 @@ diff -Naur ./svggraph_orig/includes/CSvgGraphHelper.php ./svggraph/includes/CSvg
 -
 -	private static function getLegend(array $metrics, array $legend_options): ?CSvgGraphLegend {
 -		if ($legend_options['show_legend'] != WidgetForm::LEGEND_ON) {
-+																$point = $metric['options']['aggregate_function'] == AGGREGATE_FIRST
-+																	? $points[0]
-+																	: $points[count($points) - 1];
++												$point = $metric['options']['aggregate_function'] == AGGREGATE_FIRST
++													? $points[0]
++													: $points[count($points) - 1];
 +						
-+																$metric['points'][$tick] = array_fill_keys($approximation_functions, $point['value']);
-+															}
-+															break;
++												$metric['points'][$tick] = array_fill_keys($approximation_functions, $point['value']);
 +											}
++											break;
++							}
 +						
-+											ksort($metric['points'], SORT_NUMERIC);
++							ksort($metric['points'], SORT_NUMERIC);
 +						
-+											if ($metric['options']['invert']) {
-+												foreach ($metric['points'] as &$point) {
-+													$point['min'] = -$point['min'];
-+													$point['avg'] = -$point['avg'];
-+													$point['max'] = -$point['max'];
-+												}
-+												unset($point);
-+											}
-+										}
-+									}
++							if ($metric['options']['invert']) {
++								foreach ($metric['points'] as &$point) {
++									$point['min'] = -$point['min'];
++									$point['avg'] = -$point['avg'];
++									$point['max'] = -$point['max'];
++								}
++								unset($point);
++							}
++						}
++					}
 +						
-+									private static function getLegend(array $metrics, array $legend_options): ?CSvgGraphLegend {		if ($legend_options['show_legend'] != WidgetForm::LEGEND_ON) {
++						private static function getLegend(array $metrics, array $legend_options): ?CSvgGraphLegend {		if ($legend_options['show_legend'] != WidgetForm::LEGEND_ON) {
  			return null;
  		}
  
@@ -113,33 +113,33 @@ diff -Naur ./svggraph_orig/includes/CSvgGraphHelper.php ./svggraph/includes/CSvg
 -
 -		return (new CSvgGraphLegend($items))
 -			->setColumnsCount($legend_options['legend_columns'])
-+														$values = array_column($metric['points'], 'avg');
-+												}
++										$values = array_column($metric['points'], 'avg');
++								}
 +						
-+												if ($metric['options']['invert']) {
-+													$values = array_map(static function ($value) {
-+														return -$value;
-+													}, $values);
-+												}
++								if ($metric['options']['invert']) {
++									$values = array_map(static function ($value) {
++										return -$value;
++									}, $values);
++								}
 +						
-+												$item += [
-+													'units' => $metric['units'],
-+													'min' => min($values),
-+													'avg' => array_sum($values) / count($values),
-+													'max' => max($values)
-+												];
-+											}
++								$item += [
++									'units' => $metric['units'],
++									'min' => min($values),
++									'avg' => array_sum($values) / count($values),
++									'max' => max($values)
++								];
++							}
 +						
-+											$items[] = $item;
-+										}
++							$items[] = $item;
++						}
 +						
-+										return (new CSvgGraphLegend($items))			->setColumnsCount($legend_options['legend_columns'])
++						return (new CSvgGraphLegend($items))			->setColumnsCount($legend_options['legend_columns'])
  			->setLinesCount($legend_options['legend_lines'])
  			->setLinesMode($legend_options['legend_lines_mode'])
  			->showStatistic($legend_options['legend_statistic']);
-diff -Naur ./svggraph_orig/includes/CWidgetFieldDataSet.php ./svggraph/includes/CWidgetFieldDataSet.php
---- ./svggraph_orig/includes/CWidgetFieldDataSet.php	2025-08-25 12:13:47.000000000 +0200
-+++ ./svggraph/includes/CWidgetFieldDataSet.php	2025-09-20 20:53:41.452473080 +0200
+diff -Naur svggraph/includes/CWidgetFieldDataSet.php svggraph/includes/CWidgetFieldDataSet.php
+--- svggraph/includes/CWidgetFieldDataSet.php	2025-08-25 12:13:47.000000000 +0200
++++ svggraph/includes/CWidgetFieldDataSet.php	2025-09-20 20:53:41.452473080 +0200
 @@ -63,6 +63,7 @@
  				'fill'					=> ['type' => API_INT32, 'in' => '0:10'],
  				'missingdatafunc'		=> ['type' => API_INT32, 'in' => implode(',', [SVG_GRAPH_MISSING_DATA_NONE, SVG_GRAPH_MISSING_DATA_CONNECTED, SVG_GRAPH_MISSING_DATA_TREAT_AS_ZERO, SVG_GRAPH_MISSING_DATA_LAST_KNOWN])],
@@ -164,9 +164,9 @@ diff -Naur ./svggraph_orig/includes/CWidgetFieldDataSet.php ./svggraph/includes/
  			'timeshift' => ZBX_WIDGET_FIELD_TYPE_STR,
  			'missingdatafunc' => ZBX_WIDGET_FIELD_TYPE_INT32,
  			'aggregate_function' => ZBX_WIDGET_FIELD_TYPE_INT32,
-diff -Naur ./svggraph_orig/includes/CWidgetFieldDataSetView.php ./svggraph/includes/CWidgetFieldDataSetView.php
---- ./svggraph_orig/includes/CWidgetFieldDataSetView.php	2025-08-25 12:13:47.000000000 +0200
-+++ ./svggraph/includes/CWidgetFieldDataSetView.php	2025-09-20 20:53:52.110605079 +0200
+diff -Naur svggraph/includes/CWidgetFieldDataSetView.php svggraph/includes/CWidgetFieldDataSetView.php
+--- svggraph/includes/CWidgetFieldDataSetView.php	2025-08-25 12:13:47.000000000 +0200
++++ svggraph/includes/CWidgetFieldDataSetView.php	2025-09-20 20:53:52.110605079 +0200
 @@ -422,6 +422,14 @@
  							)
  						])

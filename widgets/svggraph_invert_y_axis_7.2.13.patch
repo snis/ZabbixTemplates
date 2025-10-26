@@ -1,6 +1,6 @@
-diff -Naur 7.2-includes/CSvgGraphHelper.php 7.2-includes-modified/CSvgGraphHelper.php
---- 7.2-includes/CSvgGraphHelper.php	2025-10-26 19:02:51.727046953 +0100
-+++ 7.2-includes-modified/CSvgGraphHelper.php	2025-10-26 19:12:24.078076049 +0100
+diff -Naur svggraph/includes/CSvgGraphHelper.php svggraph/includes/CSvgGraphHelper.php
+--- svggraph/includes/CSvgGraphHelper.php	2025-10-26 19:02:51.727046953 +0100
++++ svggraph/includes/CSvgGraphHelper.php	2025-10-26 19:12:24.078076049 +0100
 @@ -700,6 +700,15 @@
  						}
  						ksort($metric['points'], SORT_NUMERIC);
@@ -46,9 +46,9 @@ diff -Naur 7.2-includes/CSvgGraphHelper.php 7.2-includes-modified/CSvgGraphHelpe
  				$item += [
  					'units' => $metric['units'],
  					'min' => min($values),
-diff -Naur 7.2-includes/CWidgetFieldDataSet.php 7.2-includes-modified/CWidgetFieldDataSet.php
---- 7.2-includes/CWidgetFieldDataSet.php	2025-10-26 19:02:28.424096450 +0100
-+++ 7.2-includes-modified/CWidgetFieldDataSet.php	2025-10-26 19:12:03.991895038 +0100
+diff -Naur svggraph/includes/CWidgetFieldDataSet.php svggraph/includes/CWidgetFieldDataSet.php
+--- svggraph/includes/CWidgetFieldDataSet.php	2025-10-26 19:02:28.424096450 +0100
++++ svggraph/includes/CWidgetFieldDataSet.php	2025-10-26 19:12:03.991895038 +0100
 @@ -62,6 +62,7 @@
  				'fill'					=> ['type' => API_INT32, 'in' => '0:10'],
  				'missingdatafunc'		=> ['type' => API_INT32, 'in' => implode(',', [SVG_GRAPH_MISSING_DATA_NONE, SVG_GRAPH_MISSING_DATA_CONNECTED, SVG_GRAPH_MISSING_DATA_TREAT_AS_ZERO, SVG_GRAPH_MISSING_DATA_LAST_KNOWN])],
@@ -73,9 +73,9 @@ diff -Naur 7.2-includes/CWidgetFieldDataSet.php 7.2-includes-modified/CWidgetFie
  			'timeshift' => ZBX_WIDGET_FIELD_TYPE_STR,
  			'missingdatafunc' => ZBX_WIDGET_FIELD_TYPE_INT32,
  			'aggregate_function' => ZBX_WIDGET_FIELD_TYPE_INT32,
-diff -Naur 7.2-includes/CWidgetFieldDataSetView.php 7.2-includes-modified/CWidgetFieldDataSetView.php
---- 7.2-includes/CWidgetFieldDataSetView.php	2025-10-26 19:02:06.347046129 +0100
-+++ 7.2-includes-modified/CWidgetFieldDataSetView.php	2025-10-26 19:12:12.491971504 +0100
+diff -Naur svggraph/includes/CWidgetFieldDataSetView.php svggraph/includes/CWidgetFieldDataSetView.php
+--- svggraph/includes/CWidgetFieldDataSetView.php	2025-10-26 19:02:06.347046129 +0100
++++ svggraph/includes/CWidgetFieldDataSetView.php	2025-10-26 19:12:12.491971504 +0100
 @@ -419,6 +419,14 @@
  							)
  						])
