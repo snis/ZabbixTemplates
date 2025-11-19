@@ -1,0 +1,2107 @@
+zabbix_export:
+  version: '7.2'
+  template_groups:
+    - uuid: 36bff6c29af64692839d077febfc7079
+      name: 'Templates/Network devices'
+  templates:
+    - uuid: e331b888cf8a4f0195873195a958e6ac
+      template: 'FortiAnalyzer by SNMP'
+      name: 'FortiAnalyzer by SNMP'
+      description: 'Made by @snis'
+      groups:
+        - name: 'Templates/Network devices'
+      items:
+        - uuid: 9c8b6c7c979f47ccbdac4b85fee00ef2
+          name: 'SNMP walk ADOM Table'
+          type: SNMP_AGENT
+          snmp_oid: 'walk[1.3.6.1.4.1.12356.103.5.2]'
+          key: adom.table.walk
+          history: '0'
+          value_type: TEXT
+          description: 'Used for discovering ADOM related information'
+          tags:
+            - tag: component
+              value: raw
+        - uuid: 229bc53768f84f1cb748e1aff1cffd5d
+          name: 'CPU utilization'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.12356.103.2.1.1.0
+          key: 'fm.system.info[fmSysCpuUsage]'
+          value_type: FLOAT
+          units: '%'
+          description: |
+            MIB:  FORTINET-FORTIMANAGER-FORTIANALYZER-MIB
+            CPU utilization in %.
+          tags:
+            - tag: component
+              value: cpu
+          triggers:
+            - uuid: a11496fd496a41c9b95b01fbd9820fa1
+              expression: 'min(/FortiAnalyzer by SNMP/fm.system.info[fmSysCpuUsage],5m)>{$CPU.UTIL.CRIT}'
+              name: 'FAZ: High CPU utilization'
+              event_name: 'FAZ: High CPU utilization (over {$CPU.UTIL.CRIT}% for 5m)'
+              opdata: 'Current utilization: {ITEM.LASTVALUE1}'
+              priority: WARNING
+              description: 'The CPU utilization is too high. The system might be slow to respond.'
+              tags:
+                - tag: scope
+                  value: performance
+        - uuid: b1327b2a5d3f432a930d24b1b85179a1
+          name: 'Logs bytes received today'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.12356.103.2.1.13.0
+          key: 'fm.system.info[fmSysLicGbDayToday]'
+          units: B
+          description: |
+            MIB:  FORTINET-FORTIMANAGER-FORTIANALYZER-MIB
+            The bytes of logs received today.
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '10737418.24'
+          tags:
+            - tag: component
+              value: logs
+        - uuid: 6111e7b478df4a82bf958aa4117d9ef0
+          name: 'Logs bytes weekly average per day'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.12356.103.2.1.15.0
+          key: 'fm.system.info[fmSysLicGbDayWeekAvg]'
+          delay: '1d;60s/1-7,00:11-00:12'
+          units: B
+          description: |
+            MIB:  FORTINET-FORTIMANAGER-FORTIANALYZER-MIB
+            The daily average bytes of logs received over last seven days.
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '10737418.24'
+          tags:
+            - tag: component
+              value: logs
+        - uuid: 8b3067b59483430dbb1d4b7c4a4eaf33
+          name: 'Logs bytes received yesterday'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.12356.103.2.1.14.0
+          key: 'fm.system.info[fmSysLicGbDayYesterday]'
+          delay: '1d;60s/1-7,00:11-00:12'
+          units: B
+          description: |
+            MIB:  FORTINET-FORTIMANAGER-FORTIANALYZER-MIB
+            The bytes of logs received yesterday.
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '10737418.24'
+          tags:
+            - tag: component
+              value: logs
+        - uuid: 2d86b641277b4df494fcff3cc4708dc4
+          name: 'Logs indexed per second'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.12356.103.2.1.11.0
+          key: 'fm.system.info[fmSysLogIndexingRate]'
+          units: logs/s
+          description: |
+            MIB:  FORTINET-FORTIMANAGER-FORTIANALYZER-MIB
+            After logs are received, they will be indexed. It shows log indexing rate in number of logs per second with two decimal places.
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.01'
+          tags:
+            - tag: component
+              value: logs
+        - uuid: 13a340d51380423dae785067ce80a729
+          name: 'Logs lag between receiving and indexing'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.12356.103.2.1.12.0
+          key: 'fm.system.info[fmSysLogLagTime]'
+          units: s
+          description: |
+            MIB:  FORTINET-FORTIMANAGER-FORTIANALYZER-MIB
+            The time difference between log receiving and indexing.
+          tags:
+            - tag: component
+              value: logs
+        - uuid: 6b69a502cc2c4fcea22a04f0e72173da
+          name: 'Logs received per second'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.12356.103.2.1.10.0
+          key: 'fm.system.info[fmSysLogRateHr]'
+          units: logs/s
+          description: |
+            MIB:  FORTINET-FORTIMANAGER-FORTIANALYZER-MIB
+            Log receiving rate in number of logs per second in higher resolution with two decimal places.
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.01'
+          tags:
+            - tag: component
+              value: logs
+          triggers:
+            - uuid: 4c1f6af214c043b983c3a05cf0ba80ab
+              expression: 'last(/FortiAnalyzer by SNMP/fm.system.info[fmSysLogRateHr])<={$LOG.VOLUME.LOW}'
+              name: 'FAZ: Log volume too low'
+              priority: HIGH
+              description: 'Indicates loss of logs, either from the logging device or that FortiAnalyzers collector has stopped'
+        - uuid: 84b7842cd68a4a9fb3c052c36e53af1c
+          name: 'Firmware version'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.12356.103.2.1.7.0
+          key: 'fm.system.info[fmSysVersion]'
+          delay: 1h
+          value_type: CHAR
+          description: |
+            MIB:  FORTINET-FORTIMANAGER-FORTIANALYZER-MIB
+            Firmware version of the device.
+          inventory_link: SOFTWARE
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1d
+          tags:
+            - tag: component
+              value: system
+        - uuid: 4ae81e32f69345998ff77f174fb9ff01
+          name: 'ICMP ping'
+          type: SIMPLE
+          key: icmpping
+          description: |
+            Host accessibility by ICMP.
+            0 - ICMP ping failed.
+            1 - ICMP ping successful.
+          valuemap:
+            name: 'Service state'
+          tags:
+            - tag: component
+              value: health
+            - tag: component
+              value: network
+          triggers:
+            - uuid: 1c6f9a6885364bbc986e52b80976d6a8
+              expression: 'max(/FortiAnalyzer by SNMP/icmpping,#3)=0'
+              name: 'FAZ: Unavailable by ICMP ping'
+              priority: HIGH
+              description: 'Last three attempts returned timeout. Please check device connectivity.'
+              tags:
+                - tag: scope
+                  value: availability
+        - uuid: dc1e58e710e94a3c9cd0d910c3c82932
+          name: 'ICMP loss'
+          type: SIMPLE
+          key: icmppingloss
+          value_type: FLOAT
+          units: '%'
+          description: 'Percentage of lost packets.'
+          tags:
+            - tag: component
+              value: health
+            - tag: component
+              value: network
+          triggers:
+            - uuid: 17eeeb51f671494b815f54829eb5978f
+              expression: 'min(/FortiAnalyzer by SNMP/icmppingloss,5m)>{$ICMP_LOSS_WARN} and min(/FortiAnalyzer by SNMP/icmppingloss,5m)<100'
+              name: 'FAZ: High ICMP ping loss'
+              opdata: 'Loss: {ITEM.LASTVALUE1}'
+              priority: WARNING
+              description: 'ICMP ping loss detected.'
+              dependencies:
+                - name: 'FAZ: Unavailable by ICMP ping'
+                  expression: 'max(/FortiAnalyzer by SNMP/icmpping,#3)=0'
+              tags:
+                - tag: scope
+                  value: availability
+                - tag: scope
+                  value: performance
+        - uuid: 1b4bfb3c7ed34535940d6ca3adccc1c5
+          name: 'ICMP response time'
+          type: SIMPLE
+          key: icmppingsec
+          value_type: FLOAT
+          units: s
+          description: 'ICMP ping response time (in seconds).'
+          tags:
+            - tag: component
+              value: health
+            - tag: component
+              value: network
+          triggers:
+            - uuid: 1557224e42f94a2ebb72ffe604024823
+              expression: 'avg(/FortiAnalyzer by SNMP/icmppingsec,5m)>{$ICMP_RESPONSE_TIME_WARN}'
+              name: 'FAZ: High ICMP ping response time'
+              opdata: 'Value: {ITEM.LASTVALUE1}'
+              priority: WARNING
+              description: 'Average ICMP response time is too high.'
+              dependencies:
+                - name: 'FAZ: High ICMP ping loss'
+                  expression: 'min(/FortiAnalyzer by SNMP/icmppingloss,5m)>{$ICMP_LOSS_WARN} and min(/FortiAnalyzer by SNMP/icmppingloss,5m)<100'
+                - name: 'FAZ: Unavailable by ICMP ping'
+                  expression: 'max(/FortiAnalyzer by SNMP/icmpping,#3)=0'
+              tags:
+                - tag: scope
+                  value: availability
+                - tag: scope
+                  value: performance
+        - uuid: b5702e3ed9884a46821cf4068713b61a
+          name: 'SNMP walk network interfaces'
+          type: SNMP_AGENT
+          snmp_oid: 'walk[1.3.6.1.2.1.2.2.1.8,1.3.6.1.2.1.2.2.1.7,1.3.6.1.2.1.31.1.1.1.18,1.3.6.1.2.1.31.1.1.1.1,1.3.6.1.2.1.2.2.1.2,1.3.6.1.2.1.2.2.1.3,1.3.6.1.2.1.31.1.1.1.6,1.3.6.1.2.1.31.1.1.1.10,1.3.6.1.2.1.2.2.1.14,1.3.6.1.2.1.2.2.1.20,1.3.6.1.2.1.2.2.1.19,1.3.6.1.2.1.2.2.1.13,1.3.6.1.2.1.31.1.1.1.15]'
+          key: net.if.walk
+          history: '0'
+          value_type: TEXT
+          description: 'Used for discovering interfaces from IF-MIB.'
+          tags:
+            - tag: component
+              value: raw
+        - uuid: 56a7323748d54694ba7f9356139a093f
+          name: 'SNMP traps (fallback)'
+          type: SNMP_TRAP
+          key: snmptrap.fallback
+          value_type: LOG
+          description: 'Used for collecting all SNMP traps unmatched by other `snmptrap` items.'
+          logtimefmt: 'hh:mm:sszyyyy/MM/dd'
+          tags:
+            - tag: component
+              value: network
+        - uuid: ce23cb7df156428fa56c6ce7d300f5f2
+          name: 'System contact details'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.2.1.1.4.0
+          key: 'system.contact[sysContact.0]'
+          delay: 15m
+          value_type: CHAR
+          description: |
+            MIB: SNMPv2-MIB
+            Name and contact information of the contact person for the node. If not provided, the value is a zero-length string.
+          inventory_link: CONTACT
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 12h
+          tags:
+            - tag: component
+              value: system
+        - uuid: a5c87d246ac04bb7b80f7f1a0e593450
+          name: 'System description'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.2.1.1.1.0
+          key: 'system.descr[sysDescr.0]'
+          delay: 15m
+          value_type: CHAR
+          description: |
+            MIB: SNMPv2-MIB
+            A textual description of the entity. This value should include the full name and version identification of the system's hardware type, software operating system, and networking software.
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 12h
+          tags:
+            - tag: component
+              value: system
+        - uuid: 604e5de923f5439881156193c8aed56e
+          name: 'Hardware model name'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.2.1.1.2.0
+          key: system.hw.model
+          delay: 1h
+          value_type: CHAR
+          description: |
+            MIB: ENTITY-MIB
+            Model of the device.
+          inventory_link: MODEL
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1d
+          tags:
+            - tag: component
+              value: system
+        - uuid: de1b92183127433aa22f2d309df4dbff
+          name: 'Hardware serial number'
+          type: SNMP_AGENT
+          snmp_oid: .1.3.6.1.4.1.12356.100.1.1.1.0
+          key: system.hw.serialnumber
+          delay: 1h
+          value_type: CHAR
+          description: |
+            MIB:  FORTINET-CORE-MIB
+            Serial number of the device.
+          inventory_link: SERIALNO_A
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1d
+          tags:
+            - tag: component
+              value: system
+            - tag: system
+              value: serialnumber
+          triggers:
+            - uuid: 27a67082cdb44c7f9ea3b6557f45304e
+              expression: |
+                last(/FortiAnalyzer by SNMP/system.hw.serialnumber,#1)<>last(/FortiAnalyzer by SNMP/system.hw.serialnumber,#2) and
+                length(last(/FortiAnalyzer by SNMP/system.hw.serialnumber))>0
+              name: 'FAZ: Device has been replaced'
+              event_name: 'FAZ: Device has been replaced (new serial number received)'
+              priority: INFO
+              description: 'Device serial number has changed. Acknowledge to close the problem manually.'
+              manual_close: 'YES'
+              tags:
+                - tag: scope
+                  value: notice
+        - uuid: c5af0d88c55c4b6e8dc9788d42bd6769
+          name: 'System location'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.2.1.1.6.0
+          key: 'system.location[sysLocation.0]'
+          delay: 15m
+          value_type: CHAR
+          description: |
+            MIB: SNMPv2-MIB
+            Physical location of the node (e.g., `equipment room`, `3rd floor`). If not provided, the value is a zero-length string.
+          inventory_link: LOCATION
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 12h
+          tags:
+            - tag: component
+              value: system
+        - uuid: 0237163103cb4dc0ad65b21268162387
+          name: 'System name'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.2.1.1.5.0
+          key: system.name
+          delay: 15m
+          value_type: CHAR
+          description: |
+            MIB: SNMPv2-MIB
+            An administratively-assigned name for the node (the node's fully-qualified domain name). If not provided, the value is a zero-length string.
+          inventory_link: NAME
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 12h
+          tags:
+            - tag: component
+              value: system
+          triggers:
+            - uuid: 8790715c1408460089fc62b3e2b67ff6
+              expression: 'last(/FortiAnalyzer by SNMP/system.name,#1)<>last(/FortiAnalyzer by SNMP/system.name,#2) and length(last(/FortiAnalyzer by SNMP/system.name))>0'
+              name: 'FAZ: System name has changed'
+              event_name: 'FAZ: System name has changed (new name: {ITEM.VALUE})'
+              opdata: 'Indicates swap or HA failover'
+              priority: INFO
+              description: 'The name of the system has changed. Acknowledge to close the problem manually.'
+              manual_close: 'YES'
+              tags:
+                - tag: scope
+                  value: notice
+                - tag: scope
+                  value: security
+        - uuid: 6c98353197024daebe03e086c91da5a4
+          name: 'System object ID'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.2.1.1.2.0
+          key: 'system.objectid[sysObjectID.0]'
+          delay: 15m
+          value_type: CHAR
+          description: |
+            MIB: SNMPv2-MIB
+            The vendor's authoritative identification of the entity as part of the vendor's SMI enterprises subtree with the prefix 1.3.6.1.4.1 (e.g., a vendor with the identifier 1.3.6.1.4.1.4242 might assign a system object with the OID 1.3.6.1.4.1.4242.1.1).
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 12h
+          tags:
+            - tag: component
+              value: system
+        - uuid: 5519964e5a4f4f47ba98e6b70ce2b1b7
+          name: 'System uptime'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.2.1.1.3.0
+          key: 'system.uptime[fgSysUpTime.0]'
+          units: uptime
+          description: |
+            MIB: FORTINET-FORTIGATE-MIB
+            Time since the network management portion of the system was last re-initialized.
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '0.01'
+          tags:
+            - tag: component
+              value: system
+          triggers:
+            - uuid: 75c33a6db6df47c8943a39898f2a09b0
+              expression: 'last(/FortiAnalyzer by SNMP/system.uptime[fgSysUpTime.0])<10m'
+              name: 'FAZ: Device has been restarted'
+              event_name: 'FAZ: {HOST.NAME} has been restarted (uptime < 10m)'
+              priority: INFO
+              description: 'Uptime is less than 10 minutes.'
+              manual_close: 'YES'
+              tags:
+                - tag: scope
+                  value: notice
+        - uuid: d99b24770f2a4804ba8f218b7e72b290
+          name: 'Free disk space'
+          type: CALCULATED
+          key: vfs.fs.free
+          units: B
+          params: 'last(//vfs.fs.total[fgSysDiskCapacity.0])-last(//vfs.fs.used[fgSysDiskUsage.0])'
+          description: 'Free hard disk capacity.'
+          tags:
+            - tag: component
+              value: storage
+        - uuid: 7ab2777a859840f783dafd37f9e5cdcf
+          name: 'Free disk percentage'
+          type: CALCULATED
+          key: vfs.fs.pfree
+          value_type: FLOAT
+          units: '%'
+          params: '100-(last(//vfs.fs.used[fgSysDiskUsage.0])/last(//vfs.fs.total[fgSysDiskCapacity.0])*100)'
+          description: 'Free disk space, expressed in %.'
+          tags:
+            - tag: component
+              value: storage
+          triggers:
+            - uuid: 25aef462143b4068b24486666a515c6b
+              expression: 'last(/FortiAnalyzer by SNMP/vfs.fs.pfree)<{$DISK.FREE.WARN}'
+              name: 'FAZ: Free disk space is low'
+              event_name: 'FAZ: Free disk space is less than {$DISK.FREE.WARN}%'
+              status: DISABLED
+              priority: WARNING
+              description: 'Available disk space is not enough.'
+              dependencies:
+                - name: 'FAZ: Free disk space is too low'
+                  expression: 'last(/FortiAnalyzer by SNMP/vfs.fs.pfree)<{$DISK.FREE.CRIT}'
+              tags:
+                - tag: scope
+                  value: capacity
+                - tag: scope
+                  value: performance
+            - uuid: a13c8283abc747178fda41469b85f47f
+              expression: 'last(/FortiAnalyzer by SNMP/vfs.fs.pfree)<{$DISK.FREE.CRIT}'
+              name: 'FAZ: Free disk space is too low'
+              event_name: 'FAZ: Free disk space is less than {$DISK.FREE.CRIT}%'
+              status: DISABLED
+              priority: HIGH
+              description: 'Available disk space is too low.'
+              tags:
+                - tag: scope
+                  value: capacity
+                - tag: scope
+                  value: performance
+        - uuid: 0c0e1d38ab5f4a7c8192be8d6179e23c
+          name: 'Total disk space'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.12356.103.2.1.5.0
+          key: 'vfs.fs.total[fgSysDiskCapacity.0]'
+          units: B
+          description: 'Total hard disk capacity.'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '1048576'
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1d
+          tags:
+            - tag: component
+              value: storage
+        - uuid: ed941b0a38334852b057098210bbbd77
+          name: 'Used disk space'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.12356.103.2.1.4.0
+          key: 'vfs.fs.used[fgSysDiskUsage.0]'
+          units: B
+          description: 'Current hard disk usage.'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '1048576'
+          tags:
+            - tag: component
+              value: storage
+        - uuid: 5e1095bfc35447aa83a037909a0eca1e
+          name: 'Total memory + swap'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.12356.103.2.1.3.0
+          key: 'vm.memory.total[fmSysMemCapacity]'
+          delay: 12h
+          units: B
+          description: 'Total physical and swap memory installed'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '1024'
+          tags:
+            - tag: component
+              value: memory
+        - uuid: 80fdd6c0b0544325922e6754367d27fa
+          name: 'Used memory'
+          type: SNMP_AGENT
+          snmp_oid: 1.3.6.1.4.1.12356.103.2.1.2.0
+          key: 'vm.memory.used[fgSysMemUsed]'
+          value_type: FLOAT
+          units: B
+          description: 'Current memory used'
+          preprocessing:
+            - type: MULTIPLIER
+              parameters:
+                - '1024'
+          tags:
+            - tag: component
+              value: memory
+        - uuid: 7e4f2ed3f674498ba5168a457d975fa0
+          name: 'SNMP agent availability'
+          type: INTERNAL
+          key: 'zabbix[host,snmp,available]'
+          description: |
+            Availability of SNMP checks on the host. The value of this item corresponds to availability icons in the host list.
+            Possible values:
+            0 - not available
+            1 - available
+            2 - unknown
+          valuemap:
+            name: 'Host availability status'
+          tags:
+            - tag: component
+              value: health
+            - tag: component
+              value: network
+          triggers:
+            - uuid: bd432e21b472476da8a4cd555f405b3d
+              expression: 'max(/FortiAnalyzer by SNMP/zabbix[host,snmp,available],{$SNMP.TIMEOUT})=0'
+              name: 'FAZ: No SNMP data collection'
+              opdata: 'Current state: {ITEM.LASTVALUE1}'
+              priority: WARNING
+              description: 'SNMP is not available for polling. Please check device connectivity and SNMP settings.'
+              dependencies:
+                - name: 'FAZ: Unavailable by ICMP ping'
+                  expression: 'max(/FortiAnalyzer by SNMP/icmpping,#3)=0'
+              tags:
+                - tag: scope
+                  value: availability
+      discovery_rules:
+        - uuid: 34d695feb08443109d4c4e2d0193495f
+          name: 'ADOM Table discovery'
+          type: DEPENDENT
+          key: adom.table.discovery
+          filter:
+            conditions:
+              - macro: '{#ADOM.NUMB.OF.FGT}'
+                value: '{$ADOM.IGNORE.EMPTY}'
+                operator: NOT_MATCHES_REGEX
+          description: 'Used for discovering ADOM related info.'
+          item_prototypes:
+            - uuid: d64f901be1e941ceb3053bffd1d47ecb
+              name: 'ADOM {#ADOM.NAME}: Allocated disk'
+              type: DEPENDENT
+              key: 'adom.table[fmAdomEntArchiveLogQuota.{#SNMPINDEX}]'
+              units: b
+              description: 'The maximum disk space allocated for adom archive logs. ADOM {#ADOM.NAME}'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.12356.103.5.2.1.12.{#SNMPINDEX}'
+                    - '0'
+                - type: MULTIPLIER
+                  parameters:
+                    - '1048576'
+              master_item:
+                key: adom.table.walk
+              tags:
+                - tag: adom
+                  value: '{#ADOM.NAME}'
+                - tag: component
+                  value: adom
+            - uuid: 560fddd0afb54153b9d59d5fabef8e8e
+              name: 'ADOM {#ADOM.NAME}: Retention days'
+              type: DEPENDENT
+              key: 'adom.table[fmAdomEntArchiveLogRetention.{#SNMPINDEX}]'
+              units: d
+              description: 'Number of retention days for archive in ADOM {#ADOM.NAME}'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.12356.103.5.2.1.11.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: adom.table.walk
+              tags:
+                - tag: adom
+                  value: '{#ADOM.NAME}'
+                - tag: component
+                  value: adom
+            - uuid: cbcf2fd7a81b4250bbef2b36cabab717
+              name: 'ADOM {#ADOM.NAME}: Used disk'
+              type: DEPENDENT
+              key: 'adom.table[fmAdomEntArchiveLogUsedSpace.{#SNMPINDEX}]'
+              units: b
+              description: 'Disk space adom archive logs have used. ADOM {#ADOM.NAME}'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.12356.103.5.2.1.13.{#SNMPINDEX}'
+                    - '0'
+                - type: MULTIPLIER
+                  parameters:
+                    - '1048576'
+              master_item:
+                key: adom.table.walk
+              tags:
+                - tag: adom
+                  value: '{#ADOM.NAME}'
+                - tag: component
+                  value: adom
+            - uuid: 0251531ea0814492b60d1f8cc0eb1792
+              name: 'ADOM {#ADOM.NAME}: Number of Fortigates'
+              type: DEPENDENT
+              key: 'adom.table[fmAdomEntFgtNumber.{#SNMPINDEX}]'
+              description: 'Number of Fortigate in ADOM {#ADOM.NAME}'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '.1.3.6.1.4.1.12356.103.5.2.1.5.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: adom.table.walk
+              tags:
+                - tag: adom
+                  value: '{#ADOM.NAME}'
+                - tag: component
+                  value: adom
+            - uuid: 082f6e28101f425780bdb6d6520f61cb
+              name: 'ADOM {#ADOM.NAME}: Logs per sec'
+              type: DEPENDENT
+              key: 'adom.table[fmAdomEntLogRateMinute.{#SNMPINDEX}]'
+              units: log/s
+              description: 'Number of log/s in ADOM {#ADOM.NAME}'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.4.1.12356.103.5.2.1.10.{#SNMPINDEX}'
+                    - '0'
+                - type: MULTIPLIER
+                  parameters:
+                    - '0.01'
+              master_item:
+                key: adom.table.walk
+              tags:
+                - tag: adom
+                  value: '{#ADOM.NAME}'
+                - tag: component
+                  value: adom
+          master_item:
+            key: adom.table.walk
+          preprocessing:
+            - type: SNMP_WALK_TO_JSON
+              parameters:
+                - '{#ADOM.ID}'
+                - 1.3.6.1.4.1.12356.103.5.2.1.1
+                - '0'
+                - '{#ADOM.NAME}'
+                - 1.3.6.1.4.1.12356.103.5.2.1.2
+                - '0'
+                - '{#ADOM.NUMB.OF.FGT}'
+                - 1.3.6.1.4.1.12356.103.5.2.1.5
+                - '0'
+              error_handler: DISCARD_VALUE
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1h
+        - uuid: 49bd07a77e4d4517817afe1e936af6c2
+          name: 'Network interface discovery'
+          type: DEPENDENT
+          key: net.if.discovery
+          filter:
+            evaltype: AND
+            conditions:
+              - macro: '{#IFADMINSTATUS}'
+                value: '{$NET.IF.IFADMINSTATUS.MATCHES}'
+              - macro: '{#IFADMINSTATUS}'
+                value: '{$NET.IF.IFADMINSTATUS.NOT_MATCHES}'
+                operator: NOT_MATCHES_REGEX
+              - macro: '{#IFALIAS}'
+                value: '{$NET.IF.IFALIAS.MATCHES}'
+              - macro: '{#IFALIAS}'
+                value: '{$NET.IF.IFALIAS.NOT_MATCHES}'
+                operator: NOT_MATCHES_REGEX
+              - macro: '{#IFDESCR}'
+                value: '{$NET.IF.IFDESCR.MATCHES}'
+              - macro: '{#IFDESCR}'
+                value: '{$NET.IF.IFDESCR.NOT_MATCHES}'
+                operator: NOT_MATCHES_REGEX
+              - macro: '{#IFNAME}'
+                value: '{$NET.IF.IFNAME.MATCHES}'
+              - macro: '{#IFNAME}'
+                value: '{$NET.IF.IFNAME.NOT_MATCHES}'
+                operator: NOT_MATCHES_REGEX
+              - macro: '{#IFOPERSTATUS}'
+                value: '{$NET.IF.IFOPERSTATUS.MATCHES}'
+              - macro: '{#IFOPERSTATUS}'
+                value: '{$NET.IF.IFOPERSTATUS.NOT_MATCHES}'
+                operator: NOT_MATCHES_REGEX
+              - macro: '{#IFTYPE}'
+                value: '{$NET.IF.IFTYPE.MATCHES}'
+              - macro: '{#IFTYPE}'
+                value: '{$NET.IF.IFTYPE.NOT_MATCHES}'
+                operator: NOT_MATCHES_REGEX
+          description: 'Used for discovering interfaces from IF-MIB.'
+          item_prototypes:
+            - uuid: 2e5506cd1ff84d798cbbcf2e3dd5e510
+              name: 'Interface {#IFNAME}({#IFALIAS}): Inbound packets discarded'
+              type: DEPENDENT
+              key: 'net.if.in.discards[ifInDiscards.{#SNMPINDEX}]'
+              description: |
+                MIB: IF-MIB
+                The number of inbound packets which were chosen to be discarded even though no errors had been detected to prevent their being deliverable to a higher-layer protocol.
+                One possible reason for discarding such a packet could be to free up buffer space.
+                Discontinuities in the value of this counter can occur at re-initialization of the management system and at other times as indicated by the value of `ifCounterDiscontinuityTime`.
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.2.1.2.2.1.13.{#SNMPINDEX}'
+                    - '0'
+                - type: CHANGE_PER_SECOND
+              master_item:
+                key: net.if.walk
+              tags:
+                - tag: component
+                  value: network
+                - tag: description
+                  value: '{#IFALIAS}'
+                - tag: interface
+                  value: '{#IFNAME}'
+            - uuid: dcc5320e2d9a49deaa9d292188937927
+              name: 'Interface {#IFNAME}({#IFALIAS}): Inbound packets with errors'
+              type: DEPENDENT
+              key: 'net.if.in.errors[ifInErrors.{#SNMPINDEX}]'
+              description: |
+                MIB: IF-MIB
+                For packet-oriented interfaces - the number of inbound packets that contained errors preventing them from being deliverable to a higher-layer protocol.
+                For character-oriented or fixed-length interfaces - the number of inbound transmission units that contained errors preventing them from being deliverable to a higher-layer protocol.
+                Discontinuities in the value of this counter can occur at re-initialization of the management system and at other times as indicated by the value of `ifCounterDiscontinuityTime`.
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.2.1.2.2.1.14.{#SNMPINDEX}'
+                    - '0'
+                - type: CHANGE_PER_SECOND
+              master_item:
+                key: net.if.walk
+              tags:
+                - tag: component
+                  value: network
+                - tag: description
+                  value: '{#IFALIAS}'
+                - tag: interface
+                  value: '{#IFNAME}'
+            - uuid: 0203ee9712d34cf5aceae8512ff04399
+              name: 'Interface {#IFNAME}({#IFALIAS}): Bits received'
+              type: DEPENDENT
+              key: 'net.if.in[ifHCInOctets.{#SNMPINDEX}]'
+              units: bps
+              description: |
+                MIB: IF-MIB
+                The total number of octets received on the interface, including framing characters. This object is a 64-bit version of `ifInOctets`.
+                Discontinuities in the value of this counter can occur at re-initialization of the management system and at other times as indicated by the value of `ifCounterDiscontinuityTime`.
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.2.1.31.1.1.1.6.{#SNMPINDEX}'
+                    - '0'
+                - type: CHANGE_PER_SECOND
+                - type: MULTIPLIER
+                  parameters:
+                    - '8'
+              master_item:
+                key: net.if.walk
+              tags:
+                - tag: component
+                  value: network
+                - tag: description
+                  value: '{#IFALIAS}'
+                - tag: interface
+                  value: '{#IFNAME}'
+            - uuid: f306ff68f912486ea6b313bf521bd924
+              name: 'Interface {#IFNAME}({#IFALIAS}): Outbound packets discarded'
+              type: DEPENDENT
+              key: 'net.if.out.discards[ifOutDiscards.{#SNMPINDEX}]'
+              description: |
+                MIB: IF-MIB
+                The number of outbound packets which were chosen to be discarded even though no errors had been detected to prevent their being deliverable to a higher-layer protocol.
+                One possible reason for discarding such a packet could be to free up buffer space.
+                Discontinuities in the value of this counter can occur at re-initialization of the management system and at other times as indicated by the value of `ifCounterDiscontinuityTime`.
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.2.1.2.2.1.19.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: net.if.walk
+              tags:
+                - tag: component
+                  value: network
+                - tag: description
+                  value: '{#IFALIAS}'
+                - tag: interface
+                  value: '{#IFNAME}'
+            - uuid: fb97185b1bc045f5ad1918200d7a8b5d
+              name: 'Interface {#IFNAME}({#IFALIAS}): Outbound packets with errors'
+              type: DEPENDENT
+              key: 'net.if.out.errors[ifOutErrors.{#SNMPINDEX}]'
+              description: |
+                MIB: IF-MIB
+                For packet-oriented interfaces - the number of outbound packets that contained errors preventing them from being deliverable to a higher-layer protocol.
+                For character-oriented or fixed-length interfaces - the number of outbound transmission units that contained errors preventing them from being deliverable to a higher-layer protocol.
+                Discontinuities in the value of this counter can occur at re-initialization of the management system and at other times as indicated by the value of `ifCounterDiscontinuityTime`.
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.2.1.2.2.1.20.{#SNMPINDEX}'
+                    - '0'
+                - type: CHANGE_PER_SECOND
+              master_item:
+                key: net.if.walk
+              tags:
+                - tag: component
+                  value: network
+                - tag: description
+                  value: '{#IFALIAS}'
+                - tag: interface
+                  value: '{#IFNAME}'
+            - uuid: d527e936c12c4b11a48ccfe86d795f31
+              name: 'Interface {#IFNAME}({#IFALIAS}): Bits sent'
+              type: DEPENDENT
+              key: 'net.if.out[ifHCOutOctets.{#SNMPINDEX}]'
+              units: bps
+              description: |
+                MIB: IF-MIB
+                The total number of octets transmitted out of the interface, including framing characters. This object is a 64-bit version of `ifOutOctets`.
+                Discontinuities in the value of this counter can occur at re-initialization of the management system and at other times as indicated by the value of `ifCounterDiscontinuityTime`.
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.2.1.31.1.1.1.10.{#SNMPINDEX}'
+                    - '0'
+                - type: CHANGE_PER_SECOND
+                - type: MULTIPLIER
+                  parameters:
+                    - '8'
+              master_item:
+                key: net.if.walk
+              tags:
+                - tag: component
+                  value: network
+                - tag: description
+                  value: '{#IFALIAS}'
+                - tag: interface
+                  value: '{#IFNAME}'
+            - uuid: 904b7d03ce9744ca86aa4a6e1f092b22
+              name: 'Interface {#IFNAME}({#IFALIAS}): Speed'
+              type: DEPENDENT
+              key: 'net.if.speed[ifHighSpeed.{#SNMPINDEX}]'
+              units: bps
+              description: |
+                MIB: IF-MIB
+                An estimate of the interface's current bandwidth in units of 1,000,000 bits per second.
+                If this object reports a value of `n`, then the speed of the interface is somewhere in the range of `n-500,000` to `n+499,999`.
+                For interfaces which do not vary in bandwidth or for those where no accurate estimation can be made, this object should contain the nominal bandwidth.
+                For a sub-layer which has no concept of bandwidth, this object should be zero.
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.2.1.31.1.1.1.15.{#SNMPINDEX}'
+                    - '0'
+                - type: MULTIPLIER
+                  parameters:
+                    - '1000000'
+                - type: DISCARD_UNCHANGED_HEARTBEAT
+                  parameters:
+                    - 1h
+              master_item:
+                key: net.if.walk
+              tags:
+                - tag: component
+                  value: network
+                - tag: description
+                  value: '{#IFALIAS}'
+                - tag: interface
+                  value: '{#IFNAME}'
+            - uuid: 0c86cebca8f043578e5c5e1cf65f3e3a
+              name: 'Interface {#IFNAME}({#IFALIAS}): Operational status'
+              type: DEPENDENT
+              key: 'net.if.status[ifOperStatus.{#SNMPINDEX}]'
+              description: |
+                MIB: IF-MIB
+                The current operational state of the interface.
+                - The `testing(3)` state indicates that no operational packets can be passed.
+                - If `ifAdminStatus` is `down(2)`, then `ifOperStatus` should be `down(2)`.
+                - If `ifAdminStatus` is changed to `up(1)`, then `ifOperStatus` should change to `up(1)` if the interface is ready to transmit and receive network traffic.
+                - It should change to `dormant(5)` if the interface is waiting for external actions (such as a serial line waiting for an incoming connection).
+                - It should remain in the `down(2)` state if and only if there is a fault that prevents it from going to the `up(1)` state.
+                - It should remain in the `notPresent(6)` state if the interface has missing (typically, hardware) components.
+              valuemap:
+                name: 'Interface status'
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.2.1.2.2.1.8.{#SNMPINDEX}'
+                    - '0'
+              master_item:
+                key: net.if.walk
+              tags:
+                - tag: component
+                  value: network
+                - tag: description
+                  value: '{#IFALIAS}'
+                - tag: interface
+                  value: '{#IFNAME}'
+              trigger_prototypes:
+                - uuid: 003aca842ad54ebda22ff2e9c4850df7
+                  expression: '{$IFCONTROL:"{#IFNAME}"}=1 and last(/FortiAnalyzer by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])=2 and (last(/FortiAnalyzer by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}],#1)<>last(/FortiAnalyzer by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}],#2))'
+                  recovery_mode: RECOVERY_EXPRESSION
+                  recovery_expression: 'last(/FortiAnalyzer by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])<>2 or {$IFCONTROL:"{#IFNAME}"}=0'
+                  name: 'FortiGate: Interface {#IFNAME}({#IFALIAS}): Link down'
+                  opdata: 'Current state: {ITEM.LASTVALUE1}'
+                  priority: AVERAGE
+                  description: |
+                    This trigger expression works as follows:
+                    1. It can be triggered if the operations status is down.
+                    2. `{$IFCONTROL:"{#IFNAME}"}=1` - a user can redefine the context macro to "0", marking this interface as not important. No new trigger will be fired if this interface is down.
+                    3. `{TEMPLATE_NAME:METRIC.diff()}=1` - the trigger fires only if the operational status was up to "1" sometime before.
+                    
+                    WARNING: if closed manually - it will not fire again on the next poll, because of `.diff`.
+                  manual_close: 'YES'
+                  tags:
+                    - tag: scope
+                      value: availability
+            - uuid: f7773ba3eeec4386a61b76306ad59128
+              name: 'Interface {#IFNAME}({#IFALIAS}): Interface type'
+              type: DEPENDENT
+              key: 'net.if.type[ifType.{#SNMPINDEX}]'
+              trends: '0'
+              description: |
+                MIB: IF-MIB
+                The type of interface.
+                Additional values for `ifType` are assigned by the Internet Assigned Numbers Authority (IANA) through updating the syntax of the IANAifType textual convention.
+              preprocessing:
+                - type: SNMP_WALK_VALUE
+                  parameters:
+                    - '1.3.6.1.2.1.2.2.1.3.{#SNMPINDEX}'
+                    - '0'
+                - type: DISCARD_UNCHANGED_HEARTBEAT
+                  parameters:
+                    - 1d
+              master_item:
+                key: net.if.walk
+              tags:
+                - tag: component
+                  value: network
+                - tag: description
+                  value: '{#IFALIAS}'
+                - tag: interface
+                  value: '{#IFNAME}'
+          trigger_prototypes:
+            - uuid: d6fdde3977af42b9a10423fb68ef0322
+              expression: |
+                change(/FortiAnalyzer by SNMP/net.if.speed[ifHighSpeed.{#SNMPINDEX}])<0 and last(/FortiAnalyzer by SNMP/net.if.speed[ifHighSpeed.{#SNMPINDEX}])>0 and (
+                last(/FortiAnalyzer by SNMP/net.if.type[ifType.{#SNMPINDEX}])=6 or
+                last(/FortiAnalyzer by SNMP/net.if.type[ifType.{#SNMPINDEX}])=7 or
+                last(/FortiAnalyzer by SNMP/net.if.type[ifType.{#SNMPINDEX}])=11 or
+                last(/FortiAnalyzer by SNMP/net.if.type[ifType.{#SNMPINDEX}])=62 or
+                last(/FortiAnalyzer by SNMP/net.if.type[ifType.{#SNMPINDEX}])=69 or
+                last(/FortiAnalyzer by SNMP/net.if.type[ifType.{#SNMPINDEX}])=117
+                ) and (last(/FortiAnalyzer by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])<>2)
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: |
+                (change(/FortiAnalyzer by SNMP/net.if.speed[ifHighSpeed.{#SNMPINDEX}])>0 and 
+                last(/FortiAnalyzer by SNMP/net.if.speed[ifHighSpeed.{#SNMPINDEX}],#2)>0) or
+                (last(/FortiAnalyzer by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])=2)
+              name: 'FortiGate: Interface {#IFNAME}({#IFALIAS}): Ethernet has changed to lower speed than it was before'
+              opdata: 'Current reported speed: {ITEM.LASTVALUE1}'
+              priority: INFO
+              description: 'This Ethernet connection has transitioned down from its known maximum speed. This might be a sign of autonegotiation issues. Acknowledge to close the problem manually.'
+              manual_close: 'YES'
+              dependencies:
+                - name: 'FortiGate: Interface {#IFNAME}({#IFALIAS}): Link down'
+                  expression: '{$IFCONTROL:"{#IFNAME}"}=1 and last(/FortiAnalyzer by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])=2 and (last(/FortiAnalyzer by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}],#1)<>last(/FortiAnalyzer by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}],#2))'
+                  recovery_expression: 'last(/FortiAnalyzer by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])<>2 or {$IFCONTROL:"{#IFNAME}"}=0'
+              tags:
+                - tag: scope
+                  value: performance
+            - uuid: f4bb0cdbed8346178433a02543b6fc98
+              expression: |
+                (avg(/FortiAnalyzer by SNMP/net.if.in[ifHCInOctets.{#SNMPINDEX}],15m)>({$IF.UTIL.MAX:"{#IFNAME}"}/100)*last(/FortiAnalyzer by SNMP/net.if.speed[ifHighSpeed.{#SNMPINDEX}]) or 
+                avg(/FortiAnalyzer by SNMP/net.if.out[ifHCOutOctets.{#SNMPINDEX}],15m)>({$IF.UTIL.MAX:"{#IFNAME}"}/100)*last(/FortiAnalyzer by SNMP/net.if.speed[ifHighSpeed.{#SNMPINDEX}])) and 
+                last(/FortiAnalyzer by SNMP/net.if.speed[ifHighSpeed.{#SNMPINDEX}])>0
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: |
+                avg(/FortiAnalyzer by SNMP/net.if.in[ifHCInOctets.{#SNMPINDEX}],15m)<(({$IF.UTIL.MAX:"{#IFNAME}"}-3)/100)*last(/FortiAnalyzer by SNMP/net.if.speed[ifHighSpeed.{#SNMPINDEX}]) and 
+                avg(/FortiAnalyzer by SNMP/net.if.out[ifHCOutOctets.{#SNMPINDEX}],15m)<(({$IF.UTIL.MAX:"{#IFNAME}"}-3)/100)*last(/FortiAnalyzer by SNMP/net.if.speed[ifHighSpeed.{#SNMPINDEX}])
+              name: 'FortiGate: Interface {#IFNAME}({#IFALIAS}): High bandwidth usage'
+              event_name: 'FortiGate: Interface {#IFNAME}({#IFALIAS}): High bandwidth usage (>{$IF.UTIL.MAX:"{#IFNAME}"}%)'
+              opdata: 'In: {ITEM.LASTVALUE1}, out: {ITEM.LASTVALUE3}, speed: {ITEM.LASTVALUE2}'
+              priority: WARNING
+              description: 'The utilization of the network interface is close to its estimated maximum bandwidth.'
+              manual_close: 'YES'
+              dependencies:
+                - name: 'FortiGate: Interface {#IFNAME}({#IFALIAS}): Link down'
+                  expression: '{$IFCONTROL:"{#IFNAME}"}=1 and last(/FortiAnalyzer by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])=2 and (last(/FortiAnalyzer by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}],#1)<>last(/FortiAnalyzer by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}],#2))'
+                  recovery_expression: 'last(/FortiAnalyzer by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])<>2 or {$IFCONTROL:"{#IFNAME}"}=0'
+              tags:
+                - tag: scope
+                  value: performance
+            - uuid: aebb0cbd0c7c47478d2d43c86ec2568c
+              expression: |
+                min(/FortiAnalyzer by SNMP/net.if.in.errors[ifInErrors.{#SNMPINDEX}],5m)>{$IF.ERRORS.WARN:"{#IFNAME}"}
+                or min(/FortiAnalyzer by SNMP/net.if.out.errors[ifOutErrors.{#SNMPINDEX}],5m)>{$IF.ERRORS.WARN:"{#IFNAME}"}
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: |
+                max(/FortiAnalyzer by SNMP/net.if.in.errors[ifInErrors.{#SNMPINDEX}],5m)<{$IF.ERRORS.WARN:"{#IFNAME}"}*0.8
+                and max(/FortiAnalyzer by SNMP/net.if.out.errors[ifOutErrors.{#SNMPINDEX}],5m)<{$IF.ERRORS.WARN:"{#IFNAME}"}*0.8
+              name: 'FortiGate: Interface {#IFNAME}({#IFALIAS}): High error rate'
+              event_name: 'FortiGate: Interface {#IFNAME}({#IFALIAS}): High error rate (>{$IF.ERRORS.WARN:"{#IFNAME}"} for 5m)'
+              opdata: 'errors in: {ITEM.LASTVALUE1}, errors out: {ITEM.LASTVALUE2}'
+              priority: WARNING
+              description: 'The trigger recovers when it is below 80% of the `{$IF.ERRORS.WARN:"{#IFNAME}"}` threshold.'
+              manual_close: 'YES'
+              dependencies:
+                - name: 'FortiGate: Interface {#IFNAME}({#IFALIAS}): Link down'
+                  expression: '{$IFCONTROL:"{#IFNAME}"}=1 and last(/FortiAnalyzer by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])=2 and (last(/FortiAnalyzer by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}],#1)<>last(/FortiAnalyzer by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}],#2))'
+                  recovery_expression: 'last(/FortiAnalyzer by SNMP/net.if.status[ifOperStatus.{#SNMPINDEX}])<>2 or {$IFCONTROL:"{#IFNAME}"}=0'
+              tags:
+                - tag: scope
+                  value: availability
+                - tag: scope
+                  value: performance
+          graph_prototypes:
+            - uuid: 73b8e0e13b0d4f0a92df1ddf538b4f87
+              name: 'Interface {#IFNAME}({#IFALIAS}): Network traffic'
+              graph_items:
+                - drawtype: GRADIENT_LINE
+                  color: 199C0D
+                  item:
+                    host: 'FortiAnalyzer by SNMP'
+                    key: 'net.if.in[ifHCInOctets.{#SNMPINDEX}]'
+                - sortorder: '1'
+                  drawtype: BOLD_LINE
+                  color: F63100
+                  item:
+                    host: 'FortiAnalyzer by SNMP'
+                    key: 'net.if.out[ifHCOutOctets.{#SNMPINDEX}]'
+                - sortorder: '2'
+                  color: 00611C
+                  yaxisside: RIGHT
+                  item:
+                    host: 'FortiAnalyzer by SNMP'
+                    key: 'net.if.out.errors[ifOutErrors.{#SNMPINDEX}]'
+                - sortorder: '3'
+                  color: F7941D
+                  yaxisside: RIGHT
+                  item:
+                    host: 'FortiAnalyzer by SNMP'
+                    key: 'net.if.in.errors[ifInErrors.{#SNMPINDEX}]'
+                - sortorder: '4'
+                  color: FC6EA3
+                  yaxisside: RIGHT
+                  item:
+                    host: 'FortiAnalyzer by SNMP'
+                    key: 'net.if.out.discards[ifOutDiscards.{#SNMPINDEX}]'
+                - sortorder: '5'
+                  color: 6C59DC
+                  yaxisside: RIGHT
+                  item:
+                    host: 'FortiAnalyzer by SNMP'
+                    key: 'net.if.in.discards[ifInDiscards.{#SNMPINDEX}]'
+          master_item:
+            key: net.if.walk
+          preprocessing:
+            - type: SNMP_WALK_TO_JSON
+              parameters:
+                - '{#IFOPERSTATUS}'
+                - 1.3.6.1.2.1.2.2.1.8
+                - '0'
+                - '{#IFADMINSTATUS}'
+                - 1.3.6.1.2.1.2.2.1.7
+                - '0'
+                - '{#IFALIAS}'
+                - 1.3.6.1.2.1.31.1.1.1.18
+                - '0'
+                - '{#IFNAME}'
+                - 1.3.6.1.2.1.31.1.1.1.1
+                - '0'
+                - '{#IFDESCR}'
+                - 1.3.6.1.2.1.2.2.1.2
+                - '0'
+                - '{#IFTYPE}'
+                - 1.3.6.1.2.1.2.2.1.3
+                - '0'
+              error_handler: DISCARD_VALUE
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1h
+      tags:
+        - tag: class
+          value: network
+        - tag: target
+          value: fortianalyzer
+        - tag: target
+          value: fortinet
+      macros:
+        - macro: '{$ADOM.IGNORE.EMPTY}'
+          value: '0'
+          description: 'Ignores ADOM with 0 FGT. Change to something else to discover all ADOM'
+        - macro: '{$CPU.UTIL.CRIT}'
+          value: '90'
+          description: 'Threshold of CPU utilization for Warning trigger in %.'
+        - macro: '{$DISK.FREE.CRIT}'
+          value: '0'
+          description: 'Threshold of disk free space for Critical trigger in %.'
+        - macro: '{$DISK.FREE.WARN}'
+          value: '1'
+          description: 'Threshold of disk free space for Warning trigger in %.'
+        - macro: '{$ICMP_LOSS_WARN}'
+          value: '20'
+          description: 'Threshold of ICMP packet loss for Warning trigger in %.'
+        - macro: '{$ICMP_RESPONSE_TIME_WARN}'
+          value: '0.15'
+          description: 'Threshold of average ICMP response time for Warning trigger in seconds.'
+        - macro: '{$IF.ERRORS.WARN}'
+          value: '2'
+          description: 'Threshold of error packet rate for Warning trigger. Can be used with interface name as context.'
+        - macro: '{$IF.UTIL.MAX}'
+          value: '95'
+          description: 'Threshold of interface bandwidth utilization for Warning trigger in %. Can be used with interface name as context.'
+        - macro: '{$IFCONTROL}'
+          value: '1'
+          description: 'Macro for operational state of interface for "Link down" trigger. Can be used with interface name as context.'
+        - macro: '{$LOG.VOLUME.LOW}'
+          value: '100'
+          description: 'If the number of logs per second is lower then this value, trigger'
+        - macro: '{$MEMORY.UTIL.MAX}'
+          value: '90'
+          description: 'Threshold of memory utilization for trigger in %.'
+        - macro: '{$NET.IF.IFADMINSTATUS.MATCHES}'
+          value: '.*'
+          description: 'Used in Network interface discovery. Can be overridden on the host or linked template level.'
+        - macro: '{$NET.IF.IFADMINSTATUS.NOT_MATCHES}'
+          value: ^2$
+          description: 'Used in Network interface discovery. Can be overridden on the host or linked template level.'
+        - macro: '{$NET.IF.IFALIAS.MATCHES}'
+          value: '.*'
+          description: 'Used in Network interface discovery. Can be overridden on the host or linked template level.'
+        - macro: '{$NET.IF.IFALIAS.NOT_MATCHES}'
+          value: CHANGE_IF_NEEDED
+          description: 'Used in Network interface discovery. Can be overridden on the host or linked template level.'
+        - macro: '{$NET.IF.IFDESCR.MATCHES}'
+          value: '.*'
+          description: 'Used in Network interface discovery. Can be overridden on the host or linked template level.'
+        - macro: '{$NET.IF.IFDESCR.NOT_MATCHES}'
+          value: CHANGE_IF_NEEDED
+          description: 'Used in Network interface discovery. Can be overridden on the host or linked template level.'
+        - macro: '{$NET.IF.IFNAME.MATCHES}'
+          value: '.*'
+          description: 'Used in Network interface discovery. Can be overridden on the host or linked template level.'
+        - macro: '{$NET.IF.IFNAME.NOT_MATCHES}'
+          value: '(^[Ll]o[0-9.]*$)'
+          description: 'Used in Network interface discovery. Can be overridden on the host or linked template level.'
+        - macro: '{$NET.IF.IFOPERSTATUS.MATCHES}'
+          value: '.*'
+          description: 'Used in Network interface discovery. Can be overridden on the host or linked template level.'
+        - macro: '{$NET.IF.IFOPERSTATUS.NOT_MATCHES}'
+          value: ^6$
+          description: 'Used in Network interface discovery. Can be overridden on the host or linked template level.'
+        - macro: '{$NET.IF.IFTYPE.MATCHES}'
+          value: '.*'
+          description: 'Used in Network interface discovery. Can be overridden on the host or linked template level.'
+        - macro: '{$NET.IF.IFTYPE.NOT_MATCHES}'
+          value: CHANGE_IF_NEEDED
+          description: 'Used in Network interface discovery. Can be overridden on the host or linked template level.'
+        - macro: '{$SNMP.TIMEOUT}'
+          value: 5m
+          description: 'The time interval for SNMP availability trigger.'
+      dashboards:
+        - uuid: cdc0c07df5f14405a453811b31ce990a
+          name: 'FortiGate: General'
+          pages:
+            - name: Overview
+              widgets:
+                - type: item
+                  name: 'SNMP state'
+                  width: '12'
+                  hide_header: 'YES'
+                  fields:
+                    - type: STRING
+                      name: bg_color
+                      value: FFCA28
+                    - type: STRING
+                      name: description
+                      value: SNMP
+                    - type: INTEGER
+                      name: desc_bold
+                      value: '1'
+                    - type: STRING
+                      name: desc_color
+                      value: FFFFFF
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'FortiAnalyzer by SNMP'
+                        key: 'zabbix[host,snmp,available]'
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: FF465C
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: 0EC9AC
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '1'
+                    - type: STRING
+                      name: value_color
+                      value: FFFFFF
+                    - type: INTEGER
+                      name: value_size
+                      value: '35'
+                - type: item
+                  name: 'Number of CPUs'
+                  'y': '2'
+                  width: '12'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_places
+                      value: '0'
+                    - type: INTEGER
+                      name: show.0
+                      value: '2'
+                    - type: INTEGER
+                      name: units_show
+                      value: '0'
+                    - type: STRING
+                      name: value_color
+                      value: 1E88E5
+                    - type: INTEGER
+                      name: value_size
+                      value: '50'
+                - type: gauge
+                  name: 'CPU utilization'
+                  'y': '4'
+                  width: '24'
+                  height: '4'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_places
+                      value: '0'
+                    - type: STRING
+                      name: description
+                      value: '{ITEM.DESCRIPTION}'
+                    - type: INTEGER
+                      name: desc_size
+                      value: '8'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'FortiAnalyzer by SNMP'
+                        key: 'fm.system.info[fmSysCpuUsage]'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: 0EC9AC
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: FFD54F
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '80'
+                    - type: STRING
+                      name: thresholds.2.color
+                      value: FF465C
+                    - type: STRING
+                      name: thresholds.2.threshold
+                      value: '90'
+                    - type: INTEGER
+                      name: th_show_arc
+                      value: '1'
+                    - type: INTEGER
+                      name: th_show_labels
+                      value: '1'
+                    - type: STRING
+                      name: units
+                      value: '%'
+                    - type: INTEGER
+                      name: units_size
+                      value: '15'
+                    - type: INTEGER
+                      name: value_size
+                      value: '15'
+                - type: svggraph
+                  name: 'Disk usage'
+                  'y': '8'
+                  width: '36'
+                  height: '5'
+                  fields:
+                    - type: STRING
+                      name: ds.0.color
+                      value: 1976D2
+                    - type: STRING
+                      name: ds.0.items.0
+                      value: vfs.fs.total
+                    - type: INTEGER
+                      name: ds.0.missingdatafunc
+                      value: '1'
+                    - type: INTEGER
+                      name: ds.0.width
+                      value: '6'
+                    - type: STRING
+                      name: ds.1.color
+                      value: 4CAF50
+                    - type: STRING
+                      name: ds.1.items.0
+                      value: vfs.fs.free
+                    - type: STRING
+                      name: lefty_min
+                      value: '0'
+                    - type: INTEGER
+                      name: legend_lines
+                      value: '2'
+                    - type: INTEGER
+                      name: legend_statistic
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: DEABC
+                    - type: STRING
+                      name: time_period.from
+                      value: now-1d
+                    - type: STRING
+                      name: time_period.to
+                      value: now
+                    - type: INTEGER
+                      name: working_time
+                      value: '1'
+                - type: item
+                  name: 'SSL VPN state'
+                  x: '12'
+                  width: '12'
+                  hide_header: 'YES'
+                  fields:
+                    - type: STRING
+                      name: bg_color
+                      value: FFCA28
+                    - type: STRING
+                      name: description
+                      value: 'VPN SSL'
+                    - type: INTEGER
+                      name: desc_bold
+                      value: '1'
+                    - type: STRING
+                      name: desc_color
+                      value: FFFFFF
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: FF465C
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: 0EC9AC
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '1'
+                    - type: STRING
+                      name: value_color
+                      value: FFFFFF
+                    - type: INTEGER
+                      name: value_size
+                      value: '35'
+                - type: item
+                  name: 'Total memory'
+                  x: '12'
+                  'y': '2'
+                  width: '12'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '40'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'FortiAnalyzer by SNMP'
+                        key: 'vm.memory.total[fmSysMemCapacity]'
+                    - type: INTEGER
+                      name: show.0
+                      value: '2'
+                    - type: STRING
+                      name: units
+                      value: B
+                    - type: INTEGER
+                      name: units_bold
+                      value: '0'
+                    - type: STRING
+                      name: units_color
+                      value: 1E88E5
+                    - type: STRING
+                      name: value_color
+                      value: 1E88E5
+                    - type: INTEGER
+                      name: value_size
+                      value: '50'
+                - type: item
+                  name: Uptime
+                  x: '24'
+                  width: '12'
+                  hide_header: 'YES'
+                  fields:
+                    - type: STRING
+                      name: bg_color
+                      value: 1E88E5
+                    - type: STRING
+                      name: description
+                      value: Uptime
+                    - type: INTEGER
+                      name: desc_bold
+                      value: '1'
+                    - type: STRING
+                      name: desc_color
+                      value: FFFFFF
+                    - type: INTEGER
+                      name: desc_v_pos
+                      value: '0'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'FortiAnalyzer by SNMP'
+                        key: 'system.uptime[fgSysUpTime.0]'
+                    - type: INTEGER
+                      name: show.0
+                      value: '1'
+                    - type: INTEGER
+                      name: show.1
+                      value: '2'
+                    - type: INTEGER
+                      name: units_bold
+                      value: '0'
+                    - type: STRING
+                      name: value_color
+                      value: FFFFFF
+                    - type: INTEGER
+                      name: value_size
+                      value: '35'
+                - type: item
+                  name: 'Total disk space'
+                  x: '24'
+                  'y': '2'
+                  width: '12'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '40'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'FortiAnalyzer by SNMP'
+                        key: 'vfs.fs.total[fgSysDiskCapacity.0]'
+                    - type: INTEGER
+                      name: show.0
+                      value: '2'
+                    - type: STRING
+                      name: units
+                      value: B
+                    - type: INTEGER
+                      name: units_bold
+                      value: '0'
+                    - type: STRING
+                      name: units_color
+                      value: 1E88E5
+                    - type: STRING
+                      name: value_color
+                      value: 1E88E5
+                    - type: INTEGER
+                      name: value_size
+                      value: '50'
+                - type: gauge
+                  name: 'Memory utilization'
+                  x: '24'
+                  'y': '4'
+                  width: '24'
+                  height: '4'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_places
+                      value: '0'
+                    - type: STRING
+                      name: description
+                      value: '{ITEM.DESCRIPTION}'
+                    - type: INTEGER
+                      name: desc_size
+                      value: '8'
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: 0EC9AC
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '0'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: FFD54F
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '70'
+                    - type: STRING
+                      name: thresholds.2.color
+                      value: FF465C
+                    - type: STRING
+                      name: thresholds.2.threshold
+                      value: '90'
+                    - type: INTEGER
+                      name: th_show_arc
+                      value: '1'
+                    - type: INTEGER
+                      name: th_show_labels
+                      value: '1'
+                    - type: STRING
+                      name: units
+                      value: '%'
+                    - type: INTEGER
+                      name: units_size
+                      value: '15'
+                    - type: INTEGER
+                      name: value_size
+                      value: '15'
+                - type: item
+                  name: 'Serial Number'
+                  x: '36'
+                  width: '18'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '20'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'FortiAnalyzer by SNMP'
+                        key: system.hw.serialnumber
+                    - type: INTEGER
+                      name: show.0
+                      value: '2'
+                    - type: INTEGER
+                      name: units_show
+                      value: '0'
+                    - type: INTEGER
+                      name: value_size
+                      value: '40'
+                - type: item
+                  name: Name
+                  x: '36'
+                  'y': '2'
+                  width: '18'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '20'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'FortiAnalyzer by SNMP'
+                        key: system.name
+                    - type: INTEGER
+                      name: show.0
+                      value: '2'
+                    - type: INTEGER
+                      name: units_show
+                      value: '0'
+                    - type: INTEGER
+                      name: value_size
+                      value: '40'
+                - type: problems
+                  x: '36'
+                  'y': '8'
+                  width: '36'
+                  height: '5'
+                  fields:
+                    - type: INTEGER
+                      name: acknowledgement_status
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: BAAAA
+                    - type: INTEGER
+                      name: show
+                      value: '3'
+                    - type: INTEGER
+                      name: show_opdata
+                      value: '2'
+                    - type: INTEGER
+                      name: show_tags
+                      value: '1'
+                    - type: STRING
+                      name: tag_priority
+                      value: scope
+                - type: gauge
+                  name: 'Free disk percentage'
+                  x: '48'
+                  'y': '4'
+                  width: '24'
+                  height: '4'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_places
+                      value: '0'
+                    - type: STRING
+                      name: description
+                      value: '{ITEM.DESCRIPTION}'
+                    - type: INTEGER
+                      name: desc_size
+                      value: '8'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'FortiAnalyzer by SNMP'
+                        key: vfs.fs.pfree
+                    - type: STRING
+                      name: thresholds.0.color
+                      value: 0EC9AC
+                    - type: STRING
+                      name: thresholds.0.threshold
+                      value: '40'
+                    - type: STRING
+                      name: thresholds.1.color
+                      value: FFD54F
+                    - type: STRING
+                      name: thresholds.1.threshold
+                      value: '20'
+                    - type: STRING
+                      name: thresholds.2.color
+                      value: FF465C
+                    - type: STRING
+                      name: thresholds.2.threshold
+                      value: '0'
+                    - type: INTEGER
+                      name: th_show_arc
+                      value: '1'
+                    - type: INTEGER
+                      name: th_show_labels
+                      value: '1'
+                    - type: STRING
+                      name: units
+                      value: '%'
+                    - type: INTEGER
+                      name: units_size
+                      value: '15'
+                    - type: INTEGER
+                      name: value_size
+                      value: '15'
+                - type: item
+                  name: Firmware
+                  x: '54'
+                  width: '18'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '20'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'FortiAnalyzer by SNMP'
+                        key: 'fm.system.info[fmSysVersion]'
+                    - type: INTEGER
+                      name: show.0
+                      value: '2'
+                    - type: INTEGER
+                      name: units_show
+                      value: '0'
+                    - type: INTEGER
+                      name: value_size
+                      value: '40'
+                - type: item
+                  name: Model
+                  x: '54'
+                  'y': '2'
+                  width: '18'
+                  fields:
+                    - type: INTEGER
+                      name: decimal_size
+                      value: '20'
+                    - type: ITEM
+                      name: itemid.0
+                      value:
+                        host: 'FortiAnalyzer by SNMP'
+                        key: system.hw.model
+                    - type: INTEGER
+                      name: show.0
+                      value: '2'
+                    - type: INTEGER
+                      name: units_show
+                      value: '0'
+                    - type: INTEGER
+                      name: value_size
+                      value: '40'
+        - uuid: c9359938d1334979908504bb3710dcce
+          name: 'FortiGate: High availability'
+          pages:
+            - name: Overview
+              widgets:
+                - type: item
+                  name: 'HA mode'
+                  width: '18'
+                  height: '3'
+                  fields:
+                    - type: INTEGER
+                      name: show.0
+                      value: '2'
+                - type: item
+                  name: 'HA cluster group'
+                  x: '18'
+                  width: '18'
+                  height: '3'
+                  fields:
+                    - type: INTEGER
+                      name: show.0
+                      value: '2'
+                - type: item
+                  name: 'HA cluster priority'
+                  x: '36'
+                  width: '18'
+                  height: '3'
+                  fields:
+                    - type: INTEGER
+                      name: show.0
+                      value: '2'
+                - type: item
+                  name: 'HA load-balancing schedule'
+                  x: '54'
+                  width: '18'
+                  height: '3'
+                  fields:
+                    - type: INTEGER
+                      name: show.0
+                      value: '2'
+            - name: 'HA members'
+              widgets:
+                - type: graphprototype
+                  width: '36'
+                  height: '5'
+                  fields:
+                    - type: INTEGER
+                      name: columns
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: AAAAM
+                - type: graphprototype
+                  'y': '5'
+                  width: '36'
+                  height: '5'
+                  fields:
+                    - type: INTEGER
+                      name: columns
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: AAAAO
+                - type: graphprototype
+                  'y': '10'
+                  width: '36'
+                  height: '5'
+                  fields:
+                    - type: INTEGER
+                      name: columns
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: AAAAQ
+                - type: graphprototype
+                  x: '36'
+                  width: '36'
+                  height: '5'
+                  fields:
+                    - type: INTEGER
+                      name: columns
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: AAAAN
+                - type: graphprototype
+                  x: '36'
+                  'y': '5'
+                  width: '36'
+                  height: '5'
+                  fields:
+                    - type: INTEGER
+                      name: columns
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: AAAAP
+                - type: graphprototype
+                  x: '36'
+                  'y': '10'
+                  width: '36'
+                  height: '5'
+                  fields:
+                    - type: INTEGER
+                      name: columns
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: AAAAR
+        - uuid: 73907dadef5a4def91743db73ddbb51e
+          name: 'FortiGate: Statistics'
+          pages:
+            - name: 'System performance'
+              widgets:
+                - type: graph
+                  width: '36'
+                  height: '5'
+                  fields:
+                    - type: GRAPH
+                      name: graphid.0
+                      value:
+                        host: 'FortiAnalyzer by SNMP'
+                        name: 'FortiGate: CPU utilization'
+                    - type: STRING
+                      name: reference
+                      value: AAAAA
+                - type: graph
+                  'y': '5'
+                  width: '36'
+                  height: '5'
+                  fields:
+                    - type: STRING
+                      name: reference
+                      value: AAAAC
+                - type: graph
+                  x: '36'
+                  width: '36'
+                  height: '5'
+                  fields:
+                    - type: GRAPH
+                      name: graphid.0
+                      value:
+                        host: 'FortiAnalyzer by SNMP'
+                        name: 'FortiGate: Memory usage'
+                    - type: STRING
+                      name: reference
+                      value: AAAAB
+                - type: graph
+                  x: '36'
+                  'y': '5'
+                  width: '36'
+                  height: '5'
+                  fields:
+                    - type: GRAPH
+                      name: graphid.0
+                      value:
+                        host: 'FortiAnalyzer by SNMP'
+                        name: 'FortiGate: Disk usage'
+                    - type: STRING
+                      name: reference
+                      value: AAAAD
+            - name: 'SoC3 NP6Lite statistics'
+              widgets:
+                - type: graphprototype
+                  width: '72'
+                  height: '5'
+                  fields:
+                    - type: INTEGER
+                      name: columns
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: AAAAE
+            - name: 'IPS statistics'
+              widgets:
+                - type: graph
+                  width: '72'
+                  height: '7'
+                  fields:
+                    - type: STRING
+                      name: reference
+                      value: AAAAF
+            - name: 'Network interfaces'
+              widgets:
+                - type: graphprototype
+                  width: '72'
+                  height: '7'
+                  fields:
+                    - type: INTEGER
+                      name: columns
+                      value: '1'
+                    - type: GRAPH_PROTOTYPE
+                      name: graphid.0
+                      value:
+                        host: 'FortiAnalyzer by SNMP'
+                        name: 'Interface {#IFNAME}({#IFALIAS}): Network traffic'
+                    - type: STRING
+                      name: reference
+                      value: AAAAG
+            - name: 'SD-WAN statistics'
+              widgets:
+                - type: graphprototype
+                  width: '36'
+                  height: '5'
+                  fields:
+                    - type: INTEGER
+                      name: columns
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: AAAAH
+                - type: graphprototype
+                  x: '36'
+                  width: '36'
+                  height: '5'
+                  fields:
+                    - type: INTEGER
+                      name: columns
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: AAAAI
+            - name: 'Wireless statistics'
+              widgets:
+                - type: graphprototype
+                  width: '36'
+                  height: '5'
+                  fields:
+                    - type: INTEGER
+                      name: columns
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: AAAAJ
+                - type: graphprototype
+                  'y': '5'
+                  width: '36'
+                  height: '5'
+                  fields:
+                    - type: INTEGER
+                      name: columns
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: AAAAL
+                - type: graphprototype
+                  x: '36'
+                  width: '36'
+                  height: '5'
+                  fields:
+                    - type: INTEGER
+                      name: columns
+                      value: '1'
+                    - type: STRING
+                      name: reference
+                      value: AAAAK
+      valuemaps:
+        - uuid: 838152e07e9d4a4ea14188160d4908ca
+          name: 'Host availability status'
+          mappings:
+            - value: '0'
+              newvalue: 'not available'
+            - value: '1'
+              newvalue: available
+            - value: '2'
+              newvalue: unknown
+        - uuid: acd203a23f854f12a4fac7cd446c7289
+          name: 'Interface status'
+          mappings:
+            - value: '1'
+              newvalue: up
+            - value: '2'
+              newvalue: down
+            - value: '3'
+              newvalue: testing
+            - value: '4'
+              newvalue: unknown
+            - value: '5'
+              newvalue: dormant
+            - value: '6'
+              newvalue: notPresent
+            - value: '7'
+              newvalue: lowerLayerDown
+        - uuid: be49c05888b24189abfcda925bc55ff0
+          name: 'IP Address type'
+          mappings:
+            - value: '1'
+              newvalue: ipv4
+            - value: '2'
+              newvalue: ipv6
+        - uuid: 0542aa3b2ffb4341bf70263571a2ba59
+          name: 'Option state'
+          mappings:
+            - value: '1'
+              newvalue: disabled
+            - value: '2'
+              newvalue: enabled
+        - uuid: 9a4ff826b4504b5b9a4d582db22dfced
+          name: 'Sensor alert status'
+          mappings:
+            - value: '0'
+              newvalue: 'false'
+            - value: '1'
+              newvalue: 'true'
+        - uuid: 43ac1365980748a0a77ce7a3848b7993
+          name: 'Service state'
+          mappings:
+            - value: '0'
+              newvalue: down
+            - value: '1'
+              newvalue: up
+  graphs:
+    - uuid: 007f8470130042dd875713367b2cfad7
+      name: 'FortiGate: CPU utilization'
+      ymin_type_1: FIXED
+      ymax_type_1: FIXED
+      graph_items:
+        - color: 199C0D
+          item:
+            host: 'FortiAnalyzer by SNMP'
+            key: 'fm.system.info[fmSysCpuUsage]'
+    - uuid: cd14518fc69b46d6a9ba6c3e695bf580
+      name: 'FortiGate: Disk usage'
+      graph_items:
+        - color: 199C0D
+          item:
+            host: 'FortiAnalyzer by SNMP'
+            key: 'vfs.fs.total[fgSysDiskCapacity.0]'
+        - sortorder: '1'
+          color: F63100
+          item:
+            host: 'FortiAnalyzer by SNMP'
+            key: vfs.fs.free
+    - uuid: 555e414dcf7145159b783b5245fa137f
+      name: 'FortiGate: Memory usage'
+      graph_items:
+        - color: 199C0D
+          item:
+            host: 'FortiAnalyzer by SNMP'
+            key: 'vm.memory.total[fmSysMemCapacity]'

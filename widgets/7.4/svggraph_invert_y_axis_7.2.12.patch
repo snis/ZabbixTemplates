@@ -1,0 +1,93 @@
+diff -Naur svggraph/includes/CSvgGraphHelper.php svggraph/includes/CSvgGraphHelper.php
+--- svggraph/includes/CSvgGraphHelper.php	2025-08-19 10:46:34.000000000 +0200
++++ svggraph/includes/CSvgGraphHelper.php	2025-09-20 21:31:50.291025950 +0200
+@@ -700,6 +700,15 @@
+ 						}
+ 						ksort($metric['points'], SORT_NUMERIC);
+ 
++						if ($metric['options']['invert']) {
++							foreach ($metric['points'] as &$point) {
++								$point['min'] = -$point['min'];
++								$point['avg'] = -$point['avg'];
++								$point['max'] = -$point['max'];
++							}
++							unset($point);
++						}
++
+ 						unset($metric['source'], $metric['history'], $metric['trends']);
+ 					}
+ 				}
+@@ -879,6 +888,15 @@
+ 			}
+ 
+ 			ksort($metric['points'], SORT_NUMERIC);
++
++			if ($metric['options']['invert']) {
++				foreach ($metric['points'] as &$point) {
++					$point['min'] = -$point['min'];
++					$point['avg'] = -$point['avg'];
++					$point['max'] = -$point['max'];
++				}
++				unset($point);
++			}
+ 		}
+ 	}
+ 
+@@ -907,6 +925,12 @@
+ 						$values = array_column($metric['points'], 'avg');
+ 				}
+ 
++				if ($metric['options']['invert']) {
++					$values = array_map(static function ($value) {
++						return -$value;
++					}, $values);
++				}
++
+ 				$item += [
+ 					'units' => $metric['units'],
+ 					'min' => min($values),
+diff -Naur svggraph/includes/CWidgetFieldDataSet.php svggraph/includes/CWidgetFieldDataSet.php
+--- svggraph/includes/CWidgetFieldDataSet.php	2025-08-19 10:46:34.000000000 +0200
++++ svggraph/includes/CWidgetFieldDataSet.php	2025-09-20 21:31:07.019483623 +0200
+@@ -62,6 +62,7 @@
+ 				'fill'					=> ['type' => API_INT32, 'in' => '0:10'],
+ 				'missingdatafunc'		=> ['type' => API_INT32, 'in' => implode(',', [SVG_GRAPH_MISSING_DATA_NONE, SVG_GRAPH_MISSING_DATA_CONNECTED, SVG_GRAPH_MISSING_DATA_TREAT_AS_ZERO, SVG_GRAPH_MISSING_DATA_LAST_KNOWN])],
+ 				'axisy'					=> ['type' => API_INT32, 'flags' => API_REQUIRED, 'in' => implode(',', [GRAPH_YAXIS_SIDE_LEFT, GRAPH_YAXIS_SIDE_RIGHT])],
++				'invert'				=> ['type' => API_INT32, 'in' => '0,1'],
+ 				'timeshift'				=> ['type' => API_TIME_UNIT, 'flags' => API_REQUIRED, 'in' => implode(':', [ZBX_MIN_TIMESHIFT, ZBX_MAX_TIMESHIFT])],
+ 				'aggregate_function'	=> ['type' => API_INT32, 'flags' => API_REQUIRED, 'in' => implode(',', [AGGREGATE_NONE, AGGREGATE_MIN, AGGREGATE_MAX, AGGREGATE_AVG, AGGREGATE_COUNT, AGGREGATE_SUM, AGGREGATE_FIRST, AGGREGATE_LAST])],
+ 				'aggregate_interval'	=> ['type' => API_MULTIPLE, 'rules' => [
+@@ -101,6 +102,7 @@
+ 			'transparency' => SVG_GRAPH_DEFAULT_TRANSPARENCY,
+ 			'fill' => SVG_GRAPH_DEFAULT_FILL,
+ 			'axisy' => GRAPH_YAXIS_SIDE_LEFT,
++			'invert' => 0,
+ 			'timeshift' => '',
+ 			'missingdatafunc' => SVG_GRAPH_MISSING_DATA_NONE,
+ 			'aggregate_function' => AGGREGATE_NONE,
+@@ -228,6 +230,7 @@
+ 			'transparency' => ZBX_WIDGET_FIELD_TYPE_INT32,
+ 			'fill' => ZBX_WIDGET_FIELD_TYPE_INT32,
+ 			'axisy' => ZBX_WIDGET_FIELD_TYPE_INT32,
++			'invert' => ZBX_WIDGET_FIELD_TYPE_INT32,
+ 			'timeshift' => ZBX_WIDGET_FIELD_TYPE_STR,
+ 			'missingdatafunc' => ZBX_WIDGET_FIELD_TYPE_INT32,
+ 			'aggregate_function' => ZBX_WIDGET_FIELD_TYPE_INT32,
+diff -Naur svggraph/includes/CWidgetFieldDataSetView.php svggraph/includes/CWidgetFieldDataSetView.php
+--- svggraph/includes/CWidgetFieldDataSetView.php	2025-08-19 10:46:34.000000000 +0200
++++ svggraph/includes/CWidgetFieldDataSetView.php	2025-09-20 21:31:22.926682741 +0200
+@@ -419,6 +419,14 @@
+ 							)
+ 						])
+ 						->addItem([
++							new CLabel(_('Invert'), $field_name.'['.$row_num.'][invert]'),
++							new CFormField([
++								(new CVar($field_name.'['.$row_num.'][invert]', '0'))->removeId(),
++								(new CCheckBox($field_name.'['.$row_num.'][invert]'))
++									->setChecked((bool) $value['invert'])
++							])
++						])
++						->addItem([
+ 							new CLabel(_('Time shift'), $field_name.'['.$row_num.'][timeshift]'),
+ 							new CFormField(
+ 								(new CTextBox($field_name.'['.$row_num.'][timeshift]', $value['timeshift']))

@@ -1,0 +1,90 @@
+--- a/svggraph/includes/CSvgGraphHelper.php
++++ b/svggraph/includes/CSvgGraphHelper.php
+@@ -912,6 +912,16 @@
+ 							];
+ 						}
+ 						ksort($metric['points'], SORT_NUMERIC);
++
++						if (isset($metric['options']['invert']) && $metric['options']['invert']) {
++							foreach ($metric['points'] as &$point) {
++								$point['min'] = -$point['min'];
++								$point['avg'] = -$point['avg'];
++								$point['max'] = -$point['max'];
++							}
++							unset($point);
++						}
+ 
+ 						unset($metric['history'], $metric['trends']);
+ 					}
+@@ -1217,6 +1227,16 @@
+ 			}
+ 
+ 			ksort($metric['points'], SORT_NUMERIC);
++
++			if (isset($metric['options']['invert']) && $metric['options']['invert']) {
++				foreach ($metric['points'] as &$point) {
++					$point['min'] = -$point['min'];
++					$point['avg'] = -$point['avg'];
++					$point['max'] = -$point['max'];
++				}
++				unset($point);
++			}
+ 		}
+ 	}
+ 
+@@ -1253,6 +1273,12 @@
+ 					default:
+ 						$values = array_column($metric['points'], 'avg');
+ 				}
++
++				if (isset($metric['options']['invert']) && $metric['options']['invert']) {
++					$values = array_map(static function ($value) {
++						return -$value;
++					}, $values);
++				}
+ 
+ 				$item += [
+ 					'units' => $metric['units'],
+--- a/svggraph/includes/CWidgetFieldDataSet.php
++++ b/svggraph/includes/CWidgetFieldDataSet.php
+@@ -64,6 +64,7 @@
+ 				'fill'					=> ['type' => API_INT32, 'in' => '0:10'],
+ 				'missingdatafunc'		=> ['type' => API_INT32, 'in' => implode(',', [SVG_GRAPH_MISSING_DATA_NONE, SVG_GRAPH_MISSING_DATA_CONNECTED, SVG_GRAPH_MISSING_DATA_TREAT_AS_ZERO, SVG_GRAPH_MISSING_DATA_LAST_KNOWN])],
+ 				'axisy'					=> ['type' => API_INT32, 'flags' => API_REQUIRED, 'in' => implode(',', [GRAPH_YAXIS_SIDE_LEFT, GRAPH_YAXIS_SIDE_RIGHT])],
++				'invert'				=> ['type' => API_INT32, 'in' => '0,1'],
+ 				'timeshift'				=> ['type' => API_TIME_UNIT, 'flags' => API_REQUIRED, 'in' => implode(':', [ZBX_MIN_TIMESHIFT, ZBX_MAX_TIMESHIFT])],
+ 				'aggregate_function'	=> ['type' => API_INT32, 'flags' => API_REQUIRED, 'in' => implode(',', [AGGREGATE_NONE, AGGREGATE_MIN, AGGREGATE_MAX, AGGREGATE_AVG, AGGREGATE_COUNT, AGGREGATE_SUM, AGGREGATE_FIRST, AGGREGATE_LAST])],
+ 				'aggregate_interval'	=> ['type' => API_MULTIPLE, 'rules' => [
+@@ -111,6 +112,7 @@
+ 			'transparency' => SVG_GRAPH_DEFAULT_TRANSPARENCY,
+ 			'fill' => SVG_GRAPH_DEFAULT_FILL,
+ 			'axisy' => GRAPH_YAXIS_SIDE_LEFT,
++			'invert' => 0,
+ 			'timeshift' => '',
+ 			'missingdatafunc' => SVG_GRAPH_MISSING_DATA_NONE,
+ 			'aggregate_function' => AGGREGATE_NONE,
+@@ -248,6 +250,7 @@
+ 			'transparency' => ZBX_WIDGET_FIELD_TYPE_INT32,
+ 			'fill' => ZBX_WIDGET_FIELD_TYPE_INT32,
+ 			'axisy' => ZBX_WIDGET_FIELD_TYPE_INT32,
++			'invert' => ZBX_WIDGET_FIELD_TYPE_INT32,
+ 			'timeshift' => ZBX_WIDGET_FIELD_TYPE_STR,
+ 			'missingdatafunc' => ZBX_WIDGET_FIELD_TYPE_INT32,
+ 			'aggregate_function' => ZBX_WIDGET_FIELD_TYPE_INT32,
+--- a/svggraph/includes/CWidgetFieldDataSetView.php
++++ b/svggraph/includes/CWidgetFieldDataSetView.php
+@@ -465,6 +465,14 @@
+ 									->setModern()
+ 							)
+ 						])
++						->addItem([
++							new CLabel(_('Invert'), $field_name.'['.$row_num.'][invert]'),
++							new CFormField([
++								(new CVar($field_name.'['.$row_num.'][invert]', '0'))->removeId(),
++								(new CCheckBox($field_name.'['.$row_num.'][invert]'))
++									->setChecked((bool) $value['invert'])
++							])
++						])
+ 						->addItem([
+ 							new CLabel(_('Time shift'), $field_name.'['.$row_num.'][timeshift]'),
+ 							new CFormField(
